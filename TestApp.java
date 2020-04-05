@@ -3,7 +3,7 @@ import java.net.*;
 
 public class TestApp {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         //Checks if there are too many arguments
         if(args.length > 4 ){
@@ -11,32 +11,108 @@ public class TestApp {
             System.exit(1);
         }
 
-        //Checks if the second argument is a valid one
-        if(args[1] != "BACKUP" && args[1] != "RESTORE" && args[1] != "DELETE" && args[1] != "RECLAIM" && args[1] != "STATE") {
-            System.out.println("The second Argument should be 'BACKUP', 'RESTORE', 'DELETE', 'RECLAIM' or 'STATE'.\n");
-            System.exit(1);
-        }
-
-        if (args[1]== "BACKUP"){
-            System.out.println("Start BACKUP - this is a placeholder\n");
-        }
-
-        if (args[1]== "RESTORE"){
-            System.out.println("Start RESTORE - this is a placeholder\n");
-        }
-
-        if (args[1]== "DELETE"){
-            System.out.println("Start DELETE - this is a placeholder\n");
-        }
-
-        if (args[1]== "RECLAIM"){
-            System.out.println("Start RECLAIM - this is a placeholder\n");
-        }
-
-        if (args[1]== "STATE"){
-            System.out.println("Start STATE - this is a placeholder\n");
+        //If no arguments, acts as a peer, else it acts as a client
+        if(args.length == 0){
+            peer();
+            System.exit(0);
+        }else{
+            client(args);
+            fileToChunks(new File("C:\\Users\\andre\\Desktop\\IMG_2767.jpg"));
+            System.exit(0);
         }
 
 
+    }
+
+
+    public static void peer(){
+
+        try{
+            InetAddress grupo = InetAddress.getByName("225.4.5.6");
+            MulticastSocket multiSocket = new MulticastSocket(3456);
+            multiSocket.joinGroup(grupo);
+
+            byte [] buffer = new byte[100];
+            DatagramPacket  packet = new DatagramPacket (buffer, buffer.length);
+
+            multiSocket.receive(packet);
+
+            System.out.println(new String(buffer));
+
+            multiSocket.close();
+
+
+        }
+        catch(Exception e){e.printStackTrace();}
+
+    }
+
+
+    public static void client(String[] args){
+
+
+        try{
+            InetAddress grupo = InetAddress.getByName("225.4.5.6");
+            MulticastSocket multiSocket = new MulticastSocket();
+            String mensagem = "";
+        
+        
+            //Checks if the second argument is a valid one
+            if(!(args[1].equals("BACKUP")) && !(args[1].equals("RESTORE")) && !(args[1].equals("DELETE")) && !(args[1].equals("RECLAIM")) && !(args[1].equals("STATE"))) {
+                mensagem  = "The second Argument should be 'BACKUP', 'RESTORE', 'DELETE', 'RECLAIM' or 'STATE'.\n";
+            }
+
+            if (args[1].equals("BACKUP")){
+                mensagem = "Start BACKUP - this is a placeholder\n";
+            }
+
+            if (args[1].equals("RESTORE")){
+                mensagem ="Start RESTORE - this is a placeholder\n";
+            }
+
+            if (args[1].equals("DELETE")){
+                mensagem ="Start DELETE - this is a placeholder\n";
+            }
+
+            if (args[1].equals("RECLAIM")){
+                mensagem ="Start RECLAIM - this is a placeholder\n";
+            }
+
+            if (args[1].equals("STATE")){
+                mensagem ="Start STATE - this is a placeholder\n";
+            }
+
+            DatagramPacket  packet = new DatagramPacket (mensagem.getBytes(), mensagem.length(), grupo, 3456);
+            multiSocket.send(packet);
+            multiSocket.close();
+        }
+        catch(Exception e){e.printStackTrace();}
+    }
+
+    //Function to split a file into chunks
+    public static void fileToChunks(File ficheiro) throws IOException{
+        
+        int chunkNumber = 1; //initial number for chunks
+        
+        
+        byte [] buffer = new byte[64000]; // maximum size of chunk
+        
+        String fileName = ficheiro.getName();
+
+        try(FileInputStream fis = new FileInputStream(ficheiro);
+            BufferedInputStream bis = new BufferedInputStream(fis)){
+                
+                int bytesAmount = 0;
+                while ((bytesAmount = bis.read(buffer)) > 0) {
+                //write each chunk of data into separate file with different number in name
+                String filePartName = String.format("%s.%03d", fileName, chunkNumber++);
+                File newFile = new File(ficheiro.getParent(), filePartName);
+                try (FileOutputStream out = new FileOutputStream(newFile)) {
+                    out.write(buffer, 0, bytesAmount);
+                }
+            }
+        
+
+        }
     }
 }
