@@ -8,7 +8,6 @@ public class Peer implements BackupService {
     public Peer() {}
 
     public int backup(String filePath, int replicationDegree) {
-        //TODO: Backup service
         return 1;
     }
 
