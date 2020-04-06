@@ -89,30 +89,4 @@ public class TestApp {
         catch(Exception e){e.printStackTrace();}
     }
 
-    //Function to split a file into chunks
-    public static void fileToChunks(File ficheiro) throws IOException{
-        
-        int chunkNumber = 1; //initial number for chunks
-        
-        
-        byte [] buffer = new byte[64000]; // maximum size of chunk
-        
-        String fileName = ficheiro.getName();
-
-        try(FileInputStream fis = new FileInputStream(ficheiro);
-            BufferedInputStream bis = new BufferedInputStream(fis)){
-                
-                int bytesAmount = 0;
-                while ((bytesAmount = bis.read(buffer)) > 0) {
-                //write each chunk of data into separate file with different number in name
-                String filePartName = String.format("%s.%03d", fileName, chunkNumber++);
-                File newFile = new File(ficheiro.getParent(), filePartName);
-                try (FileOutputStream out = new FileOutputStream(newFile)) {
-                    out.write(buffer, 0, bytesAmount);
-                }
-            }
-        
-
-        }
-    }
 }
