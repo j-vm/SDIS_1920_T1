@@ -2,10 +2,14 @@ import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.net.DatagramPacket;
+import java.net.MulticastSocket;
+import java.net.InetAddress;
+
         
 public class Peer implements BackupService {
-        
-    public Peer() {}
+    
+    private static int id; 
 
     public int backup(String filePath, int replicationDegree) {
 
@@ -33,7 +37,10 @@ public class Peer implements BackupService {
     }
         
     public static void main(String args[]) {
-        
+         
+
+
+
         try {
             Peer obj = new Peer();
             BackupService backupService = (BackupService) UnicastRemoteObject.exportObject(obj, 0);
@@ -47,5 +54,11 @@ public class Peer implements BackupService {
             System.err.println("Peer exception: " + e.toString());
             e.printStackTrace();
         }
+    }
+
+
+    private static boolean parseArgs(String[] args){
+        if(args.length != 6) return false;
+        if(!args[0].matches("[0-9].[0-9]")) return false;
     }
 }

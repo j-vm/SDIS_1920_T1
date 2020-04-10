@@ -17,7 +17,7 @@ public class TestApp {
             System.exit(0);
         }else{
             client(args);
-            fileToChunks(new File("C:\\Users\\andre\\Desktop\\IMG_2767.jpg"));
+            fileToChunks(new File("IMG_2767.jpg"));
             System.exit(0);
         }
 
@@ -88,5 +88,7 @@ public class TestApp {
         }
         catch(Exception e){e.printStackTrace();}
     }
+
+
 
 }
