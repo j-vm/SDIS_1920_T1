@@ -1,4 +1,4 @@
-package Server;
+
  //Adapted from : https://www.geeksforgeeks.org/sha-256-hash-in-java/
 
 

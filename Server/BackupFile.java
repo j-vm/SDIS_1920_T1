@@ -1,10 +1,13 @@
-import Chunk;
+
+//import Chunk.java;
 import java.io.*;
 import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
-import Server.Hashing;
+//import Server.Hashing;
 import javax.naming.directory.BasicAttributes;
+
+import java.util.Arrays;
 import java.util.List;
 
 public class BackupFile{

@@ -12,8 +12,8 @@ public class Peer implements BackupService {
     
     private static int id;
     private static int service_access_point;
-    private static String[] ips;
-    private static int[] ports;
+    private static String ips[] = new String[3];
+    private static int ports[] = new int[3];
     private static MCchannel controlChannel;
     private static MDBchannel backupChannel;
     private static MDRchannel restoreChannel;
@@ -57,13 +57,22 @@ public class Peer implements BackupService {
 
             // Bind the remote object's stub in the registry
             Registry registry = LocateRegistry.getRegistry();
-            registry.bind("BackupService", backupService);
+            //registry.bind("BackupService", backupService);
 
-            System.err.println("Peer ready");
+            System.err.println("Peer " + id + " [READY]");
         } catch (Exception e) {
             System.err.println("Peer exception: " + e.toString());
             e.printStackTrace();
         }
+
+        Thread threadMC = new Thread(controlChannel);
+        Thread threadMDB = new Thread(backupChannel);
+        Thread threadMDR = new Thread(restoreChannel);
+
+        //threadMC.start();
+        //threadMDB.start();
+        //threadMDR.start();
+
     }
 
     private static boolean parseArgs(String args[]){
@@ -76,7 +85,7 @@ public class Peer implements BackupService {
             ips[i] = name[0];
             ports[i] = Integer.parseInt(name[1]);
         }
-        controlChannel = new MCchannel(ips[0], ports[0]);
+        controlChannel = new MCchannel(ips[0], ports[0], id);
         backupChannel = new MDBchannel(ips[1], ports[1]);
         restoreChannel = new MDRchannel(ips[2], ports[2]);     
         
