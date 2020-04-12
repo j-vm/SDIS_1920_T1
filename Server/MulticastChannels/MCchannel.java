@@ -38,6 +38,7 @@ public class MCchannel implements Runnable{
                             DatagramPacket recv = new DatagramPacket(buf, buf.length);       
                             socket.receive(recv);
                             recv.getData();
+                            //TODO: MANAGE CONTROL MESSAGES [3.1]
                             //parseRecived(buf);
                             System.out.println(buf);
                      }
@@ -50,6 +51,7 @@ public class MCchannel implements Runnable{
        }
 
        public void broadcast(){
+              //TODO: switch template message with agr message 3.1 
               try (DatagramSocket serverSocket = new DatagramSocket()) {
                      for (int i = 0; i < 5; i++) {
                          String msg = "Sent message no " + i;

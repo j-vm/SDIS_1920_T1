@@ -13,8 +13,14 @@ public class Client {
         try {
             Registry registry = LocateRegistry.getRegistry(peerId);
             BackupService backupService = (BackupService) registry.lookup("BackupService");
+            
+            
+            //TODO: Parse arguments and call specific subprotocol [6.1]
             int response = backupService.backup("test", 2);
             System.out.println("response: " + response);
+            //** 
+
+
         } catch (Exception e) {
             System.err.println("Client exception: " + e.toString());
             e.printStackTrace();
