@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
-//import Server.Hashing;
+import Server.Hashing;
 import javax.naming.directory.BasicAttributes;
 
 import java.util.Arrays;
@@ -16,9 +16,27 @@ public class BackupFile{
        Chunk chunks[];
        int replication_degree;
 
-       public BackupFile(String FilePath, int replication_degree) {
+       public BackupFile(String filePath, int replication_degree) {
               this.replication_degree = replication_degree;
               this.chunks = new Chunk[4];
+
+              List<File> chunkFiles;
+
+              //Divide the file into Chunks and get the total number of Chunks
+              int numChunks = filetoChunks(filePath,chunkFiles);
+
+              //create a loop to transfer the files
+
+              for(int i = 0; i < numChunks; i++){
+                     
+              }
+
+
+
+
+
+
+
        }
 
        public BackupFile() {
@@ -31,15 +49,18 @@ public class BackupFile{
         * @param ficheiro the file that will be divided into chunks
         * @param filePath path of the file that will be divided.  
         */
-       public static void fileToChunks(File ficheiro, Path filePath) throws IOException{
+       public static int fileToChunks(String filePath, List<File> chunkFiles) throws IOException{
               
               int chunkNumber = 1; //initial number for chunks
               
-              
+              Path p1 = Paths.get(filePath);
+
               byte [] buffer = new byte[MAX_CHUNK_SIZE]; // maximum size of chunk
 
+              File ficheiro = new File(filePath);
+
               
-              BasicFileAttributes attrs = Files.readAttributes(filePath, BasicAttributes.class); //get metadata from file
+              BasicFileAttributes attrs = Files.readAttributes(p1, BasicAttributes.class); //get metadata from file
               
               String fileName = ficheiro.getName();
 
@@ -55,8 +76,10 @@ public class BackupFile{
                             try (FileOutputStream out = new FileOutputStream(newFile)) {
                                    out.write(buffer, 0, bytesAmount);
                             }
+                            chunkFiles.add(newFile);
                      }
               }
+              return chunkNumber;
        }
 
 
