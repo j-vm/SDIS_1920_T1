@@ -20,7 +20,7 @@ public class Peer implements BackupService {
 
 
     public int backup(String filePath, int replicationDegree) {
-
+        controlChannel.broadcast();
         
         return 1;
     }
@@ -56,10 +56,10 @@ public class Peer implements BackupService {
             BackupService backupService = (BackupService) UnicastRemoteObject.exportObject(obj, 0);
 
             // Bind the remote object's stub in the registry
-            Registry registry = LocateRegistry.getRegistry();
-            //registry.bind("BackupService", backupService);
+            Registry registry = LocateRegistry.createRegistry(id);
+            registry.bind("BackupService", backupService);
 
-            System.err.println("Peer " + id + " [READY]");
+            System.err.println("Peer " + id + " [Connected to RMI]");
         } catch (Exception e) {
             System.err.println("Peer exception: " + e.toString());
             e.printStackTrace();
@@ -69,9 +69,12 @@ public class Peer implements BackupService {
         Thread threadMDB = new Thread(backupChannel);
         Thread threadMDR = new Thread(restoreChannel);
 
-        //threadMC.start();
+        threadMC.start();
+        System.err.println("Peer " + id + " [Connected to MC]");
         //threadMDB.start();
+        System.err.println("Peer " + id + " [Connected to MDB]");
         //threadMDR.start();
+        System.err.println("Peer " + id + " [Connected to MDR]");
 
     }
 
