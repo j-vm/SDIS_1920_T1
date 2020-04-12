@@ -14,11 +14,39 @@ public class Client {
             Registry registry = LocateRegistry.getRegistry(peerId);
             BackupService backupService = (BackupService) registry.lookup("BackupService");
             
-            
-            //TODO: Parse arguments and call specific subprotocol [6.1]
-            int response = backupService.backup("test", 2);
-            System.out.println("response: " + response);
-            //** 
+            if(args[2] == "BACKUP"){
+                if(args.length != 4){
+                    System.out.println("Wrong number of arguments for 'BACKUP' Service!\n");
+                }else{
+                    backupService.backup(args[3],Integer.parseInt(args[4]));
+                }
+            }else if(args[2] == "RESTORE"){
+                if(args.length != 3){
+                    System.out.println("Wrong number of arguments for 'RESTORE' Service!\n");
+                }else{
+                    backupService.restore(args[3]);
+                }
+            }else if(args[2] == "DELETE"){
+                if(args.length != 3){
+                    System.out.println("Wrong number of arguments for 'DELETE' Service!\n");
+                }else{
+                    backupService.delete(args[3]);
+                }
+            }else if(args[2] == "RECLAIM"){
+                if(args.length != 3){
+                    System.out.println("Wrong number of arguments for 'RECLAIM' Service!\n");
+                }else{
+                    backupService.manage(Integer.parseInt(args[3]));
+                }
+            }else if(args[2] == "STATE"){
+                if(args.length != 2){
+                    System.out.println("Wrong number of arguments for 'STATE' Service!\n");
+                }else{
+                    backupService.information();
+                }
+            }else{
+                System.out.println( args[2] + " is not a recognized Service!\n");
+            }
 
 
         } catch (Exception e) {
