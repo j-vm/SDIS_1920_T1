@@ -11,6 +11,7 @@ import MulticastChannels.*;
 public class Peer implements BackupService {
     
     private static int id;
+    private static String version;
     private static int service_access_point;
     private static String ips[] = new String[3];
     private static int ports[] = new int[3];
@@ -20,7 +21,15 @@ public class Peer implements BackupService {
 
 
     public int backup(String filePath, int replicationDegree) {
-        controlChannel.broadcast();
+
+        //TO DO 
+        // GET FILE ID (SHA256)
+        int fileId;
+        //get List of chunks
+        //iterate through list of chunks
+            int chunkNo;
+            backupChannel.broadcast(String.format("%s PUTCHUNK %d %d %d %d", version, id, fileId, chunkNo, replicationDegree));
+        //<Version> PUTCHUNK <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF><CRLF><Body>
         
         return 1;
     }
@@ -71,9 +80,9 @@ public class Peer implements BackupService {
 
         threadMC.start();
         System.err.println("Peer " + id + " [Connected to MC]");
-        //threadMDB.start();
+        threadMDB.start();
         System.err.println("Peer " + id + " [Connected to MDB]");
-        //threadMDR.start();
+        threadMDR.start();
         System.err.println("Peer " + id + " [Connected to MDR]");
 
     }
@@ -81,6 +90,7 @@ public class Peer implements BackupService {
     private static boolean parseArgs(String args[]){
         if(args.length != 6) return false;
         if(!args[0].matches("[0-9].[0-9]")) return false;
+        version = args[0];
         id = Integer.parseInt(args[1]);
         service_access_point = Integer.parseInt(args[2]);
         for (int i = 0; i < 3; i++) {
