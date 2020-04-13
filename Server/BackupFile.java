@@ -26,12 +26,10 @@ public class BackupFile{
               List<File> chunkFiles;
 
               //Divide the file into Chunks and get the total number of Chunks
-              int numChunks = fileToChunks(filePath, chunkFiles)
+              int numChunks = fileToChunks(filePath, chunkFiles);
               //create a loop to transfer the files
 
-              for(int i = 0; i < numChunks; i++){
-                     
-              }
+       
 
 
 

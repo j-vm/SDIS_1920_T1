@@ -23,14 +23,22 @@ public class Peer implements BackupService {
 
     public int backup(String filePath, int replicationDegree) {
 
-        //TO DO 
-        // GET FILE ID (SHA256)
-        //get List of chunks
+        
+        List<File> chunkFiles; // List of chunks of a file
+        int chunkNo;   // number of a given chunk
+
+        int chunks = fileToChunks(filePath, chunkFiles); //number of chunks in which a file was divided
+        String tempId = chunkFiles.get(1).getName(); 
+
+        String fileId = tempId.substring(0, tempId.lastIndexOf('.')); //file id of a given file (encoded in SHA256)
+
         //iterate through list of chunks
-            int chunkNo;
+        for(int i = 0; i<chunks; i++){
+            chunkNo = i;    
+            //TODO how to format?
             backupChannel.broadcast(String.format("%s PUTCHUNK %d %d %d %d", version, id, fileId, chunkNo, replicationDegree));
         //<Version> PUTCHUNK <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF><CRLF><Body>
-        
+            }
         return 1;
     }
 
