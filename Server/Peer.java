@@ -2,19 +2,18 @@ import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.List;
-import java.io.File;
+import java.io.*;
 import java.net.DatagramPacket;
 import java.net.MulticastSocket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.net.InetAddress;
 import MulticastChannels.*;
-import BackupFile;
 
-        
 public class Peer implements BackupService {
-    
+
     private static int id;
     private static String version;
     private static int service_access_point;
@@ -24,25 +23,34 @@ public class Peer implements BackupService {
     private static MDBchannel backupChannel;
     private static MDRchannel restoreChannel;
 
-
     public int backup(String filePath, int replicationDegree) {
 
-        
-        List<File> chunkFiles; // List of chunks of a file
-        int chunkNo;   // number of a given chunk
+        List<File> chunkFiles = new ArrayList<File>(); // List of chunks of a file
+        int chunkNo; // number of a given chunk
 
-        int chunks = fileToChunks(filePath, chunkFiles); //number of chunks in which a file was divided
-        String tempId = chunkFiles.get(1).getName(); 
+        int chunks = 0;
+        try {
+            chunks = BackupFile.fileToChunks(filePath, chunkFiles);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } // number of chunks in which a file was divided
+        String tempId = chunkFiles.get(1).getName();
 
-        String fileId = tempId.substring(0, tempId.lastIndexOf('.')); //file id of a given file (encoded in SHA256)
+        String fileId = tempId.substring(0, tempId.lastIndexOf('.')); // file id of a given file (encoded in SHA256)
 
-        //iterate through list of chunks
-        for(int i = 0; i < chunks; i++){
-            //Creating message by concatenating byte arrays
+        // iterate through list of chunks
+        for (int i = 0; i < chunks; i++) {
+            // Creating message by concatenating byte arrays
             chunkNo = i;
-            byte[] header = String.format("%s PUTCHUNK %d %d %d %d \r\n \r\n",
-                version, id, fileId, chunkNo, replicationDegree).getBytes();
-            byte body[] = Files.readAllBytes(Paths.get(chunkFiles.get(i).getPath()));
+            byte[] header = String
+                    .format("%s PUTCHUNK %d %d %d %d \r\n \r\n", version, id, fileId, chunkNo, replicationDegree)
+                    .getBytes();
+            byte body[] = null;
+            try {
+                body = Files.readAllBytes(Paths.get(chunkFiles.get(i).getPath()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             byte[] msg = new byte[header.length + body.length];
             System.arraycopy(header, 0, msg, 0, header.length);
             System.arraycopy(body, 0, msg, header.length, body.length);
@@ -53,7 +61,17 @@ public class Peer implements BackupService {
     }
 
     public int restore(String filePath) {
-        //TODO: restore service
+        
+        File ficheiro = new File(filePath);
+        Path p1 = Paths.get(filePath);
+        BasicFileAttributes attrs = Files.readAttributes(p1, BasicAttributes.class); //get metadata from file
+        String fileName = ficheiro.getName();
+        String fileId = String.format("%s_%s", fileName,attrs.lastModifiedTime());
+
+
+
+
+
         return 1;
     }
 

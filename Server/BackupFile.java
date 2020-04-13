@@ -1,11 +1,11 @@
 
+
 //import Chunk.java;
 import java.io.*;
 import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
-import Server.Hashing;
 import javax.naming.directory.BasicAttributes;
 
 import java.util.Arrays;
@@ -50,7 +50,7 @@ public class BackupFile{
         * @param ficheiro the file that will be divided into chunks
         * @param filePath path of the file that will be divided.  
         */
-       public int fileToChunks(String filePath, List<File> chunkFiles) throws IOException{
+       public static int fileToChunks(String filePath, List<File> chunkFiles) throws IOException{
               
               int chunkNumber = 1; //initial number for chunks
               
