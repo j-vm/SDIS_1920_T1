@@ -5,7 +5,8 @@ import java.rmi.server.UnicastRemoteObject;
 import java.net.DatagramPacket;
 import java.net.MulticastSocket;
 import java.net.InetAddress;
-import MulticastChannels.*;
+import Server.MulticastChannels.*;
+import Server.BackupFile;
 
         
 public class Peer implements BackupService {
@@ -24,7 +25,6 @@ public class Peer implements BackupService {
 
         //TO DO 
         // GET FILE ID (SHA256)
-        int fileId;
         //get List of chunks
         //iterate through list of chunks
             int chunkNo;

@@ -16,6 +16,9 @@ public class BackupFile{
        Chunk chunks[];
        int replication_degree;
 
+
+       
+
        public BackupFile(String filePath, int replication_degree) {
               this.replication_degree = replication_degree;
               this.chunks = new Chunk[4];
@@ -23,8 +26,7 @@ public class BackupFile{
               List<File> chunkFiles;
 
               //Divide the file into Chunks and get the total number of Chunks
-              int numChunks = filetoChunks(filePath,chunkFiles);
-
+              int numChunks = fileToChunks(filePath, chunkFiles)
               //create a loop to transfer the files
 
               for(int i = 0; i < numChunks; i++){
@@ -42,6 +44,14 @@ public class BackupFile{
        public BackupFile() {
        }
 
+       public String hash256(String toHash){
+              String hashedString;
+              hashedString = Hashing.toHexString(Hashing.getSHA(toHash));
+
+              return hashedString;
+
+       }
+
 
 
        //TODO adapt function to class
@@ -49,7 +59,7 @@ public class BackupFile{
         * @param ficheiro the file that will be divided into chunks
         * @param filePath path of the file that will be divided.  
         */
-       public static int fileToChunks(String filePath, List<File> chunkFiles) throws IOException{
+       public int fileToChunks(String filePath, List<File> chunkFiles) throws IOException{
               
               int chunkNumber = 1; //initial number for chunks
               
@@ -71,7 +81,7 @@ public class BackupFile{
                      while ((bytesAmount = bis.read(buffer)) > 0) {
                             //write each chunk of data into separate file with different number in name
                             String fileId = String.format("%s_%s", fileName,attrs.lastModifiedTime());
-                            String fileIdName = String.format("%s.%03d",toHexString(getSHA(fileId)),chunkNumber++);
+                            String fileIdName = String.format("%s.%03d",hash256(fileId),chunkNumber++);
                             File newFile = new File(ficheiro.getParent(), fileIdName);
                             try (FileOutputStream out = new FileOutputStream(newFile)) {
                                    out.write(buffer, 0, bytesAmount);
