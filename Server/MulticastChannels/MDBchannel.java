@@ -101,7 +101,7 @@ public class MDBchannel implements Runnable {
               Random rand = new Random();
               int tempo = rand.nextInt(400);
               try {
-                     Thread.sleep(400);
+                     Thread.sleep(tempo);
               } catch (InterruptedException e) {
                      e.printStackTrace();
               }
@@ -110,6 +110,7 @@ public class MDBchannel implements Runnable {
                     .format("%s STORED %d %s %s \r\n \r\n", argsNew[0], peerId, argsNew[3], argsNew[4])
                     .getBytes();
                      controlChannel.broadcast(storedMsg);
+                     //TODO: Store chunk
               }
               
        }
