@@ -50,16 +50,14 @@ public class MDBchannel implements Runnable{
 
        }
 
-       public void broadcast(String msg){
+       public void broadcast(byte[] msg){
               try (DatagramSocket serverSocket = new DatagramSocket()) {
-                         // Create a packet that will contain the data
-                         // (in the form of bytes) and send it.
-                     DatagramPacket msgPacket = new DatagramPacket(msg.getBytes(), msg.getBytes().length, group, port);
+                     DatagramPacket msgPacket = new DatagramPacket(msg, msg.length, group, port);
                      serverSocket.send(msgPacket);
                      System.out.println("Server sent packet with msg: " + msg);
-                 } catch (IOException ex) {
+              } catch (IOException ex) {
                      ex.printStackTrace();
-                 }
+              }
        }
 
 }

@@ -49,23 +49,14 @@ public class MDRchannel implements Runnable{
 
        }
 
-       public void broadcast(){
-              //TODO: switch template message with agr message 3.1 
+       public void broadcast(byte[] msg){
               try (DatagramSocket serverSocket = new DatagramSocket()) {
-                     for (int i = 0; i < 5; i++) {
-                         String msg = "Sent message no " + i;
-          
-                         // Create a packet that will contain the data
-                         // (in the form of bytes) and send it.
-                         DatagramPacket msgPacket = new DatagramPacket(msg.getBytes(),
-                                 msg.getBytes().length, group, port);
-                         serverSocket.send(msgPacket);
-               
-                         System.out.println("Server sent packet with msg: " + msg);
-                     }
-                 } catch (IOException ex) {
+                     DatagramPacket msgPacket = new DatagramPacket(msg, msg.length, group, port);
+                     serverSocket.send(msgPacket);
+                     System.out.println("Server sent packet with msg: " + msg);
+              } catch (IOException ex) {
                      ex.printStackTrace();
-                 }
+              }
        }
 
 }

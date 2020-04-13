@@ -3,6 +3,7 @@
 import java.io.*;
 import java.net.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import Server.Hashing;
 import javax.naming.directory.BasicAttributes;
@@ -19,7 +20,7 @@ public class BackupFile{
 
        
 
-       public BackupFile(String filePath, int replication_degree) {
+       public BackupFile(String filePath, int replication_degree) throws IOException {
               this.replication_degree = replication_degree;
               this.chunks = new Chunk[4];
 
@@ -28,14 +29,6 @@ public class BackupFile{
               //Divide the file into Chunks and get the total number of Chunks
               int numChunks = fileToChunks(filePath, chunkFiles);
               //create a loop to transfer the files
-
-       
-
-
-
-
-
-
 
        }
 
@@ -122,7 +115,7 @@ public class BackupFile{
        public static void mergeFiles(File oneOfFiles, File into)
           throws IOException {
               mergeFiles(listOfFilesToMerge(oneOfFiles), into);
-              }
+       }
 
 
        public static List<File> listOfFilesToMerge(String oneOfFiles) {

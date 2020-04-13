@@ -2,11 +2,15 @@ import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.List;
+import java.io.File;
 import java.net.DatagramPacket;
 import java.net.MulticastSocket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.net.InetAddress;
-import Server.MulticastChannels.*;
-import Server.BackupFile;
+import MulticastChannels.*;
+import BackupFile;
 
         
 public class Peer implements BackupService {
@@ -33,12 +37,18 @@ public class Peer implements BackupService {
         String fileId = tempId.substring(0, tempId.lastIndexOf('.')); //file id of a given file (encoded in SHA256)
 
         //iterate through list of chunks
-        for(int i = 0; i<chunks; i++){
-            chunkNo = i;    
-            //TODO how to format?
-            backupChannel.broadcast(String.format("%s PUTCHUNK %d %d %d %d", version, id, fileId, chunkNo, replicationDegree));
-        //<Version> PUTCHUNK <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF><CRLF><Body>
-            }
+        for(int i = 0; i < chunks; i++){
+            //Creating message by concatenating byte arrays
+            chunkNo = i;
+            byte[] header = String.format("%s PUTCHUNK %d %d %d %d \r\n \r\n",
+                version, id, fileId, chunkNo, replicationDegree).getBytes();
+            byte body[] = Files.readAllBytes(Paths.get(chunkFiles.get(i).getPath()));
+            byte[] msg = new byte[header.length + body.length];
+            System.arraycopy(header, 0, msg, 0, header.length);
+            System.arraycopy(body, 0, msg, header.length, body.length);
+            backupChannel.broadcast(msg);
+            //<Version> PUTCHUNK <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF><CRLF><Body>
+        }
         return 1;
     }
 
