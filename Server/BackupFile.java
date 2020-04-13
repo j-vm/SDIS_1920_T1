@@ -1,3 +1,4 @@
+package Server;
 
 import java.io.*;
 import java.net.*;
@@ -95,7 +96,7 @@ public class BackupFile {
        
        public static void mergeFiles(File oneOfFiles, File into)
           throws IOException {
-              mergeFiles(listOfFilesToMerge(oneOfFiles), into);
+              //mergeFiles(listOfFilesToMerge(oneOfFiles), into);
        }
 
 

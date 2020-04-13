@@ -1,4 +1,4 @@
-package MulticastChannels;
+package Server.MulticastChannels;
 
 import java.io.File;
 import java.io.FileOutputStream;

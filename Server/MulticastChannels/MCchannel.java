@@ -1,4 +1,4 @@
-package MulticastChannels;
+package Server.MulticastChannels;
 
 import java.io.IOException;
 import java.net.DatagramPacket;

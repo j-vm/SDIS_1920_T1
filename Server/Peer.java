@@ -1,3 +1,5 @@
+package Server;
+
 import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.RemoteException;
@@ -15,7 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.net.InetAddress;
-import MulticastChannels.*;
+import Server.MulticastChannels.*;
 
 public class Peer implements BackupService {
 
