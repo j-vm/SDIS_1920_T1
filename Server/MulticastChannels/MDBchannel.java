@@ -1,6 +1,9 @@
 package MulticastChannels;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -105,12 +108,21 @@ public class MDBchannel implements Runnable {
               } catch (InterruptedException e) {
                      e.printStackTrace();
               }
-              if (controlChannel.chunksStored.get(argsNew[2]+argsNew[3]+argsNew[4]) < Integer.parseInt(argsNew[5])){
+              if (controlChannel.chunksStored.get(argsNew[2]+argsNew[3]+argsNew[4]) < Integer.parseInt(argsNew[5]) || controlChannel.chunksStored.get(argsNew[2]+argsNew[3]+argsNew[4]) == null){
                      byte[] storedMsg = String
                     .format("%s STORED %d %s %s \r\n \r\n", argsNew[0], peerId, argsNew[3], argsNew[4])
                     .getBytes();
                      controlChannel.broadcast(storedMsg);
-                     //TODO: Store chunk
+                     String nomeNovoFicheiro = (argsNew[3]+"."+argsNew[4]);
+                     File novoFicheiro = new File(nomeNovoFicheiro);
+                     try{
+                            OutputStream outst = new FileOutputStream(novoFicheiro);
+                            outst.write(body);
+                            outst.close();
+
+                     }catch(Exception e){
+                            e.printStackTrace();
+                     }
               }
               
        }
