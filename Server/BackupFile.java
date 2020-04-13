@@ -5,18 +5,24 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.security.NoSuchAlgorithmException;
+
 import javax.naming.directory.BasicAttributes;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class BackupFile{
+public class BackupFile {
 
-       static final int MAX_CHUNK_SIZE = 64000; //Bytes
-       
-       public static String hash256(String toHash){
-              String hashedString;
-              hashedString = Hashing.toHexString(Hashing.getSHA(toHash));
+       static final int MAX_CHUNK_SIZE = 64000; // Bytes
+
+       public static String hash256(String toHash) {
+              String hashedString = null;
+              try {
+                     hashedString = Hashing.toHexString(Hashing.getSHA(toHash));
+              } catch (NoSuchAlgorithmException e) {
+                     e.printStackTrace();
+              }
 
               return hashedString;
 
