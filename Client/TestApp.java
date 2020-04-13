@@ -1,5 +1,6 @@
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import Server.BackupService;
 
 public class TestApp {
 
