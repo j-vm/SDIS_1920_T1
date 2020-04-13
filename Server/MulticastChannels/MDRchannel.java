@@ -13,8 +13,9 @@ public class MDRchannel implements Runnable{
        private int port;
        private InetAddress group;
        private int peerId;
+       private  MCchannel controlChannel;
 
-       public MDRchannel(String ip, int port) {
+       public MDRchannel(String ip, int port, int peetId, MCchannel controlChannel) {
               this.port = port;
               try {
                      this.group = InetAddress.getByName(ip);
@@ -23,6 +24,7 @@ public class MDRchannel implements Runnable{
                      e.printStackTrace();
               }
               this.peerId = peerId;
+              this.controlChannel = controlChannel;
        }
 
        @Override

@@ -55,6 +55,11 @@ public class Peer implements BackupService {
             System.arraycopy(header, 0, msg, 0, header.length);
             System.arraycopy(body, 0, msg, header.length, body.length);
             backupChannel.broadcast(msg);
+            try {
+                Thread.sleep(400);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             //<Version> PUTCHUNK <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF><CRLF><Body>
         }
         return 1;
@@ -137,8 +142,8 @@ public class Peer implements BackupService {
             ports[i] = Integer.parseInt(name[1]);
         }
         controlChannel = new MCchannel(ips[0], ports[0], id);
-        backupChannel = new MDBchannel(ips[1], ports[1], id);
-        restoreChannel = new MDRchannel(ips[2], ports[2]);     
+        backupChannel = new MDBchannel(ips[1], ports[1], id, controlChannel);
+        restoreChannel = new MDRchannel(ips[2], ports[2], id, controlChannel);     
         
         return true;
     }

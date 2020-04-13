@@ -6,6 +6,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 
 
 public class MCchannel implements Runnable{
@@ -13,6 +14,8 @@ public class MCchannel implements Runnable{
        private int port;
        private InetAddress group;
        private int peerId;
+       public HashMap<String, Integer> chunksStored = new HashMap<String, Integer>();
+       
 
 
        public MCchannel(String ip, int port, int peerId) {
