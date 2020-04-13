@@ -1,5 +1,4 @@
 
-//import Chunk.java;
 import java.io.*;
 import java.net.*;
 import java.nio.file.Files;
@@ -14,27 +13,7 @@ import java.util.List;
 public class BackupFile{
 
        static final int MAX_CHUNK_SIZE = 64000; //Bytes
-       Chunk chunks[];
-       int replication_degree;
-
-
        
-
-       public BackupFile(String filePath, int replication_degree) throws IOException {
-              this.replication_degree = replication_degree;
-              this.chunks = new Chunk[4];
-
-              List<File> chunkFiles;
-
-              //Divide the file into Chunks and get the total number of Chunks
-              int numChunks = fileToChunks(filePath, chunkFiles);
-              //create a loop to transfer the files
-
-       }
-
-       public BackupFile() {
-       }
-
        public static String hash256(String toHash){
               String hashedString;
               hashedString = Hashing.toHexString(Hashing.getSHA(toHash));
@@ -42,10 +21,6 @@ public class BackupFile{
               return hashedString;
 
        }
-
-
-
-       //TODO adapt function to class
        /**Function to split a file into chunks
         * @param ficheiro the file that will be divided into chunks
         * @param filePath path of the file that will be divided.  
