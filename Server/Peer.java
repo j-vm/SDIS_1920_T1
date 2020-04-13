@@ -67,43 +67,42 @@ public class Peer implements BackupService {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            //<Version> PUTCHUNK <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF><CRLF><Body>
+            // <Version> PUTCHUNK <SenderId> <FileId> <ChunkNo> <ReplicationDeg>
+            // <CRLF><CRLF><Body>
         }
         return 0;
     }
 
     public int restore(String filePath) {
-        
+
         File ficheiro = new File(filePath);
         Path p1 = Paths.get(filePath);
-        BasicFileAttributes attrs = Files.readAttributes(p1, BasicAttributes.class); //get metadata from file
+        BasicFileAttributes attrs = null;
+        try {
+            attrs = (BasicFileAttributes) Files.readAttributes(p1, "lastModifiedTime");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } // get metadata from file
         String fileName = ficheiro.getName();
-        String fileId = String.format("%s_%s", fileName,attrs.lastModifiedTime());
+        String fileId = String.format("%s_%s", fileName, attrs.lastModifiedTime());
 
-        String fileIdName = String.format("%s",BackupFile.hash256(fileId));
-
+        String fileIdName = String.format("%s", BackupFile.hash256(fileId));
 
         int chunkNo = 0;
         int numberChunks = (int) (ficheiro.length() / 64000);
 
-        if (numberChunks == 0) numberChunks = 1;
+        if (numberChunks == 0)
+            numberChunks = 1;
         byte[] header = null;
 
-        for (int i = 0; i<numberChunks; i++){
+        for (int i = 0; i < numberChunks; i++) {
             chunkNo = i;
-            header = String
-                    .format("%s GETCHUNK %d %d %d %d \r\n \r\n", version, id, fileIdName, chunkNo)
-                    .getBytes();
+            header = String.format("%s GETCHUNK %d %d %d %d \r\n \r\n", version, id, fileIdName, chunkNo).getBytes();
         }
 
         controlChannel.broadcast(header);
-        
-        //<Version> GETCHUNK <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
 
-
-
-
-
+        // <Version> GETCHUNK <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
 
         return 0;
     }
@@ -111,7 +110,13 @@ public class Peer implements BackupService {
     public int delete(String filePath) {
         File ficheiro = new File(filePath);
         Path p1 = Paths.get(filePath);
-        BasicFileAttributes attrs = Files.readAttributes(p1, BasicAttributes.class); //get metadata from file
+        BasicFileAttributes attrs= null;
+        try {
+            attrs = (BasicFileAttributes) Files.readAttributes(p1, "lastModifiedTime");
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } // get metadata from file
         String fileName = ficheiro.getName();
         String fileId = String.format("%s_%s", fileName,attrs.lastModifiedTime());
 

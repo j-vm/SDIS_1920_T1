@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.NoSuchAlgorithmException;
 
+
 import javax.naming.directory.BasicAttributes;
 
 import java.util.Arrays;
@@ -43,7 +44,7 @@ public class BackupFile {
               File ficheiro = new File(filePath);
 
               
-              BasicFileAttributes attrs = Files.readAttributes(p1, BasicAttributes.class); //get metadata from file
+              BasicFileAttributes attrs = (BasicFileAttributes) Files.readAttributes(p1, "lastModifiedTime");// metadata
               
               String fileName = ficheiro.getName();
 
