@@ -37,9 +37,8 @@ public class MDBchannel implements Runnable{
                      while(true){
                             DatagramPacket recv = new DatagramPacket(buf, buf.length);       
                             socket.receive(recv);
-                            recv.getData();
-                            //TODO: MANAGE CONTROL MESSAGES [3.1]
-                            //parseRecived(buf);
+                            byte msg[] = recv.getData();
+                            recivedMessage(msg);
                             System.out.println(buf);
                      }
                             
@@ -60,4 +59,24 @@ public class MDBchannel implements Runnable{
               }
        }
 
+
+       private void recivedMessage(byte[] msg){
+              String tempSplit = "\r\n \r\n";
+              byte[] split = tempSplit.getBytes();
+              byte[] header;
+              byte[] body;
+              int match = 0;
+              //spliting header and body
+              for (byte b : msg) {
+                     if(split[match] == b) match++;
+                     else{
+                            match = 0;
+                            //TODO: push to header  
+                     }
+                     if(match == tempSplit.length()){
+                            //TODO: push rest to body
+                            break;
+                     }
+              }
+       }
 }
