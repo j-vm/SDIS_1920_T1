@@ -121,6 +121,8 @@ public class Peer implements BackupService {
         threadMDR.start();
         System.err.println("Peer " + id + " [Connected to MDR]");
 
+
+
     }
 
     private static boolean parseArgs(String args[]){
@@ -135,7 +137,7 @@ public class Peer implements BackupService {
             ports[i] = Integer.parseInt(name[1]);
         }
         controlChannel = new MCchannel(ips[0], ports[0], id);
-        backupChannel = new MDBchannel(ips[1], ports[1]);
+        backupChannel = new MDBchannel(ips[1], ports[1], id);
         restoreChannel = new MDRchannel(ips[2], ports[2]);     
         
         return true;

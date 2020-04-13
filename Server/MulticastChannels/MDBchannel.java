@@ -6,6 +6,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.Random;
 
 
 public class MDBchannel implements Runnable{
@@ -15,7 +17,7 @@ public class MDBchannel implements Runnable{
        private InetAddress group;
        private int peerId;
 
-       public MDBchannel(String ip, int port) {
+       public MDBchannel(String ip, int port, int peerId) {
               this.port = port;
               try {
                      this.group = InetAddress.getByName(ip);
@@ -63,20 +65,43 @@ public class MDBchannel implements Runnable{
        private void receivedMessage(byte[] msg){
               String tempSplit = "\r\n \r\n";
               byte[] split = tempSplit.getBytes();
-              byte[] header;
-              byte[] body;
-              int match = 0;
+              int sizesplit = 0;
+              byte[] header = null;
+              byte[] body = null;
+              int indice = 0;
               //spliting header and body
               for (byte b : msg) {
-                     if(split[match] == b) match++;
-                     else{
-                            match = 0;
-                            //TODO: push to header  
-                     }
-                     if(match == split.length()){
-                            //TODO: push rest to body
+                     
+                     if(split[0] == b){
+                            sizesplit = indice + (split.length -1);
+                            header = Arrays.copyOfRange(msg,0,sizesplit);
                             break;
+                     }else{
+                            indice ++;
+                            continue;
                      }
               }
+              body = Arrays.copyOfRange(msg,(sizesplit+1),(msg.length - 1));
+
+              String headerString = new String(header);
+
+              String[] argsNew = headerString.split(" ");
+
+              if (argsNew[0] != "1.0"){
+                     System.out.println("Message version not recognized");
+                     return;
+              }
+              if (argsNew[1] != "PUTCHUNK"){
+                     System.out.println("Message Type not recognized");
+                     return;
+              }
+              if (Integer.parseInt(argsNew[2]) == peerId){
+                     return;
+              }
+              
+              Random rand = new Random();
+              int tempo = rand.nextInt(400);
+
+              
        }
 }
