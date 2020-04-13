@@ -4,11 +4,16 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.naming.directory.BasicAttributes;
+
 import java.io.*;
 import java.net.DatagramPacket;
 import java.net.MulticastSocket;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.net.InetAddress;
 import MulticastChannels.*;
 
@@ -62,7 +67,7 @@ public class Peer implements BackupService {
             }
             //<Version> PUTCHUNK <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF><CRLF><Body>
         }
-        return 1;
+        return 0;
     }
 
     public int restore(String filePath) {
@@ -73,16 +78,53 @@ public class Peer implements BackupService {
         String fileName = ficheiro.getName();
         String fileId = String.format("%s_%s", fileName,attrs.lastModifiedTime());
 
+        String fileIdName = String.format("%s",BackupFile.hash256(fileId));
+
+
+        int chunkNo = 0;
+        int numberChunks = (int) (ficheiro.length() / 64000);
+
+        if (numberChunks == 0) numberChunks = 1;
+        byte[] header = null;
+
+        for (int i = 0; i<numberChunks; i++){
+            chunkNo = i;
+            header = String
+                    .format("%s GETCHUNK %d %d %d %d \r\n \r\n", version, id, fileIdName, chunkNo)
+                    .getBytes();
+        }
+
+        controlChannel.broadcast(header);
+        
+        //<Version> GETCHUNK <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
 
 
 
 
-        return 1;
+
+
+        return 0;
     }
 
     public int delete(String filePath) {
-        //TODO: delete service
-        return 1;
+        File ficheiro = new File(filePath);
+        Path p1 = Paths.get(filePath);
+        BasicFileAttributes attrs = Files.readAttributes(p1, BasicAttributes.class); //get metadata from file
+        String fileName = ficheiro.getName();
+        String fileId = String.format("%s_%s", fileName,attrs.lastModifiedTime());
+
+        String fileIdName = String.format("%s",BackupFile.hash256(fileId));
+
+
+        byte[] header = String
+                    .format("%s DELETE %d %d \r\n \r\n", version, id, fileIdName)
+                    .getBytes();
+
+        controlChannel.broadcast(header);
+        
+        //<Version> DELETE <SenderId> <FileId> <CRLF><CRLF>
+
+        return 0;
     }
     
     public int manage(int maximumDiskSpace) {

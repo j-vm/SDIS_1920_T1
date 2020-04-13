@@ -1,10 +1,10 @@
 
-
 //import Chunk.java;
 import java.io.*;
 import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import javax.naming.directory.BasicAttributes;
 
@@ -35,7 +35,7 @@ public class BackupFile{
        public BackupFile() {
        }
 
-       public String hash256(String toHash){
+       public static String hash256(String toHash){
               String hashedString;
               hashedString = Hashing.toHexString(Hashing.getSHA(toHash));
 
