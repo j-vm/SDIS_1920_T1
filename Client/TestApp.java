@@ -1,5 +1,6 @@
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import Server.BackupService;
 
 public class TestApp {
 
@@ -52,8 +53,7 @@ public class TestApp {
 
 
         } catch (Exception e) {
-            System.err.println("Client exception: " + e.toString());
-            e.printStackTrace();
+            System.out.println("Could not find peer " + peerId);
         }
     }
 
