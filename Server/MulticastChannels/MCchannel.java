@@ -6,6 +6,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.HashMap;
 
 
@@ -40,9 +41,8 @@ public class MCchannel implements Runnable{
                      while(true){
                             DatagramPacket recv = new DatagramPacket(buf, buf.length);       
                             socket.receive(recv);
-                            recv.getData();
-                            //TODO: MANAGE CONTROL MESSAGES [3.1]
-                            //parseRecived(buf);
+                            byte msg[] = recv.getData();
+                            receivedMessage(msg);
                             System.out.println(buf);
                      }
                             
@@ -61,5 +61,30 @@ public class MCchannel implements Runnable{
               } catch (IOException ex) {
                      ex.printStackTrace();
               }
+       }
+       private void receivedMessage(byte[] msg) {
+
+              String headerString = new String(msg);
+
+              String[] argsNew = headerString.split(" ");
+
+              if (argsNew[0] != "1.0") {
+                     System.out.println("Message version not recognized");
+                     return;
+              }
+              if (Integer.parseInt(argsNew[2]) == peerId) {
+                     return;
+              }
+              switch (argsNew[1]){
+                     case "STORED":
+                            String key = argsNew[2]+argsNew[3]+argsNew[4];
+                            if(chunksStored.containsKey(key)) chunksStored.put(key, chunksStored.get(key) + 1);
+                            else chunksStored.put(key,1);
+                            break;             
+                     default:
+                            System.out.println("Unrecognized message type: " + argsNew[1]);
+                            break;
+              }
+              
        }
 }
