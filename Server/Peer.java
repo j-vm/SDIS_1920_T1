@@ -4,6 +4,7 @@ import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.io.*;
 import Server.MulticastChannels.*;
 
@@ -48,10 +49,10 @@ public class Peer implements BackupService {
         String fileId = String.format("%s_%s", fileName, ficheiro.lastModified());
         String fileIdName = String.format("%s", hash256(fileId));
         int chunkNumber = 1;
-
+        int readBytes;
         try {
-            while (fis.read(buffer) != -1) {
-                // TODO:controlChannel.chunksStored.ger(key)
+            while ((readBytes = fis.read(buffer)) != -1) {
+                buffer = Arrays.copyOfRange(buffer, 0, readBytes);
                 byte[] header = String.format("%s PUTCHUNK %d %s %d %d \r\n \r\n", version, id, fileIdName, chunkNumber,
                         replicationDegree).getBytes();
                 byte body[] = buffer;
