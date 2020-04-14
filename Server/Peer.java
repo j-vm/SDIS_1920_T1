@@ -67,7 +67,7 @@ public class Peer implements BackupService {
                 System.arraycopy(body, 0, msg, header.length, body.length);
                 System.out.println(msg.length);
                 backupChannel.broadcast(msg);
-                String key = String.format("%s%d", fileId, chunkNumber);
+                String key = String.format("%s%d", fileIdName, chunkNumber);
                 int waitTime = 0;
                 while (controlChannel.chunksStored.get(key) == null
                         || controlChannel.chunksStored.get(key) < replicationDegree) {
@@ -78,8 +78,7 @@ public class Peer implements BackupService {
                     }
                     if (waitTime > 500) {
                         System.out.println("Error backing up file in chunk number:" + chunkNumber);
-                        break;
-                        //return -1;
+                        return -1;
                     }
                     waitTime += 10;
                 }
@@ -90,60 +89,6 @@ public class Peer implements BackupService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        
-        /*
-        List<File> chunkFiles = new ArrayList<File>(); // List of chunks of a file
-        int chunkNo; // number of a given chunk
-
-        int chunks = 0;
-        try {
-            chunks = BackupFile.fileToChunks(filePath, chunkFiles);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } // number of chunks in which a file was divided
-        String tempId = chunkFiles.get(0).getName();
-
-        String fileId = tempId.substring(0, tempId.lastIndexOf('.')); // file id of a given file (encoded in SHA256)
-
-        // iterate through list of chunks
-        for (int i = 0; i < chunks; i++) {
-            // Creating message by concatenating byte arrays
-            chunkNo = i;
-            byte[] header = String
-                    .format("%s PUTCHUNK %d %s %d %d \r\n \r\n", version, id, fileId, chunkNo, replicationDegree)
-                    .getBytes();
-            byte body[] = new byte[64000];
-            try {
-                body = Files.readAllBytes(Paths.get(chunkFiles.get(i).getPath()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            byte[] msg = new byte[header.length + body.length];
-            System.arraycopy(header, 0, msg, 0, header.length);
-            System.arraycopy(body, 0, msg, header.length, body.length);
-            backupChannel.broadcast(msg);
-            String key = String.format("%s%d", fileId, chunkNo);
-            int waitTime = 0;
-            while (controlChannel.chunksStored.get(key) == null
-                    || controlChannel.chunksStored.get(key) < replicationDegree) {
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                if(waitTime > 1000){
-                    System.out.println("Error backing up file in chunk number:" + i);
-                    return -1;
-                }
-                waitTime += 10;
-            }
-            // <Version> PUTCHUNK <SenderId> <FileId> <ChunkNo> <ReplicationDeg>
-            // <CRLF><CRLF><Body>
-        }
-        chunkFiles.clear();
-        System.out.println("[FILE BACKEDUP] : " + filePath);
-        */
         System.out.println("[FILE BACKEDUP] : " + filePath);
         return 0;
     }
@@ -166,6 +111,7 @@ public class Peer implements BackupService {
         for (int i = 0; i < numberChunks; i++) {
             chunkNo = i;
             header = String.format("%s GETCHUNK %d %d %d %d \r\n \r\n", version, id, fileIdName, chunkNo).getBytes();
+            //TODO: Wait for chunk to be recieved
         }
 
         controlChannel.broadcast(header);
