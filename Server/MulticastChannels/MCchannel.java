@@ -1,5 +1,7 @@
 package Server.MulticastChannels;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -87,6 +89,18 @@ public class MCchannel implements Runnable{
                             else chunksStored.put(key,1);
                             break;             
                      
+                     case "DELETE":
+                            File pasta = new File("Peers/" + Integer.toString(peerId));
+                            File[] chunksGuardados = pasta.listFiles(new FilenameFilter() {
+                            public boolean accept(File dir, String name) {
+                                   return name.startsWith(argsNew[3]);
+                            }
+                            });
+                            int numChunksGuardados = chunksGuardados.length;
+                            for (int j = 0; j< numChunksGuardados; j++){
+                                   chunksGuardados[j].delete();
+                            }
+                            
                      case "GETCHUNK":
                             //Search for existing file
                             

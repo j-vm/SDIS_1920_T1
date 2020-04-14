@@ -130,7 +130,7 @@ public class Peer implements BackupService {
 
 
         byte[] header = String
-                    .format("%s DELETE %d %d \r\n \r\n", version, id, fileIdName)
+                    .format("%s DELETE %d %s \r\n \r\n", version, id, fileIdName)
                     .getBytes();
 
         controlChannel.broadcast(header);
