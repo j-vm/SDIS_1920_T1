@@ -78,15 +78,16 @@ public class Peer implements BackupService {
                     }
                     if (waitTime > 500) {
                         System.out.println("Error backing up file in chunk number:" + chunkNumber);
-                        return -1;
+                        break;
+                        //return -1;
                     }
                     waitTime += 10;
                 }
+                chunkNumber++;
                 // <Version> PUTCHUNK <SenderId> <FileId> <ChunkNo> <ReplicationDeg>
                 // <CRLF><CRLF><Body>
             }
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
