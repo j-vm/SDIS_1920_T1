@@ -34,7 +34,6 @@ public class Peer implements BackupService {
         } catch (IOException e) {
             e.printStackTrace();
         } // number of chunks in which a file was divided
-        System.out.println(chunkFiles);
         String tempId = chunkFiles.get(0).getName();
 
         String fileId = tempId.substring(0, tempId.lastIndexOf('.')); // file id of a given file (encoded in SHA256)
