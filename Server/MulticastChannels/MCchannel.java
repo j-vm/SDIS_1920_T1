@@ -81,6 +81,9 @@ public class MCchannel implements Runnable{
               if (Integer.parseInt(argsNew[2]) == peerId) {
                      return;
               }
+
+              File folder = new File("Peers/" + Integer.toString(peerId));
+              
               switch (argsNew[1]){
                      case "STORED":
                             String key = argsNew[3]+argsNew[4];
@@ -90,7 +93,6 @@ public class MCchannel implements Runnable{
                             break;             
                      
                      case "DELETE":
-                            File folder = new File("Peers/" + Integer.toString(peerId));
                             File[] savedChunks = folder.listFiles(new FilenameFilter() {
                             public boolean accept(File dir, String name) {
                                    return name.startsWith(argsNew[3]);
@@ -102,9 +104,7 @@ public class MCchannel implements Runnable{
                             }
                             
                      case "GETCHUNK":
-
-                            File folder1 = new File("Peers/" + Integer.toString(peerId));
-                            File[] savedChunk = folder1.listFiles(new FilenameFilter() {
+                            File[] savedChunk = folder.listFiles(new FilenameFilter() {
                             public boolean accept(File dir, String name) {
                                    return name.startsWith(argsNew[3] + "." + argsNew[4]);
                             }

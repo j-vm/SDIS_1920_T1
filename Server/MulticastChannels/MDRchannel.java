@@ -6,6 +6,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.Random;
 
 public class MDRchannel implements Runnable{
 
@@ -130,10 +132,6 @@ public class MDRchannel implements Runnable{
               } catch (InterruptedException e) {
                      e.printStackTrace();
               }
-              System.out.println("MDB KEY ====" + argsNew[3]+argsNew[4] + "===");
-              System.out.println("VALUE ====" + controlChannel.chunksStored.get(argsNew[3]+argsNew[4]) + "===");
-              if (controlChannel.chunksStored.get(argsNew[3]+argsNew[4]) == null) sendChunk(argsNew, body);
-              else if (controlChannel.chunksStored.get(argsNew[3]+argsNew[4]) < Integer.parseInt(argsNew[5])) sendChunk(argsNew, body);
               
        }
 }
