@@ -65,7 +65,7 @@ public class MCchannel implements Runnable{
               try (DatagramSocket serverSocket = new DatagramSocket()) {
                      DatagramPacket msgPacket = new DatagramPacket(msg, msg.length, group, port);
                      serverSocket.send(msgPacket);
-                     System.out.println("MC sent packet with msg: " + msg);
+                     //System.out.println("MC sent packet with msg: " + msg);
               } catch (IOException ex) {
                      ex.printStackTrace();
               }
@@ -89,7 +89,6 @@ public class MCchannel implements Runnable{
               switch (argsNew[1]){
                      case "STORED":
                             String key = argsNew[3]+argsNew[4];
-                            System.out.println("MC KEY ==="+key+ "===");
                             if(chunksStored.containsKey(key)) chunksStored.put(key, chunksStored.get(key) + 1);
                             else chunksStored.put(key,1);
                             break;             
@@ -106,7 +105,6 @@ public class MCchannel implements Runnable{
                             }
                             break;
                      case "GETCHUNK":
-                            System.out.println("GETCHUNK: " + argsNew[3]+ " " + argsNew[4]);
                             File[] savedChunk = folder.listFiles(new FilenameFilter() {
                             public boolean accept(File dir, String name) {
                                    return name.startsWith(argsNew[3] + "." + argsNew[4]);
@@ -133,6 +131,7 @@ public class MCchannel implements Runnable{
                                           System.arraycopy(header, 0, msg2, 0, header.length);
                                           System.arraycopy(body, 0, msg2, header.length, body.length);
                                           restoreChannel.broadcast(msg2);
+                                          System.out.println("Sent chunk number: " + argsNew[4]);
                                    } catch (IOException e) {
                                           e.printStackTrace();
                                    }

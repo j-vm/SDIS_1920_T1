@@ -38,6 +38,10 @@ public class Peer implements BackupService {
         byte[] buffer = new byte[MAX_CHUNK_SIZE]; // maximum size of chunk
 
         File ficheiro = new File(filePath);
+        if(!ficheiro.exists()){
+            System.out.println("[FILE NOT FOUND] : " + filePath);
+            return -1;
+        }
         String fileName = ficheiro.getName();
         FileInputStream fis = null;
         try {
@@ -59,9 +63,10 @@ public class Peer implements BackupService {
                 byte[] msg = new byte[header.length + body.length];
                 System.arraycopy(header, 0, msg, 0, header.length);
                 System.arraycopy(body, 0, msg, header.length, body.length);
-                System.out.println(msg.length);
-                backupChannel.broadcast(msg);
+                //System.out.println(msg.length);
                 String key = String.format("%s%d", fileIdName, chunkNumber);
+                controlChannel.chunksStored.put(key,0);
+                backupChannel.broadcast(msg);
                 int waitTime = 0;
                 while (controlChannel.chunksStored.get(key) == null
                         || controlChannel.chunksStored.get(key) < replicationDegree) {
@@ -76,6 +81,7 @@ public class Peer implements BackupService {
                     }
                     waitTime += 10;
                 }
+                System.out.println("Chunk " + chunkNumber + " backedup");
                 chunkNumber++;
                 // <Version> PUTCHUNK <SenderId> <FileId> <ChunkNo> <ReplicationDeg>
                 // <CRLF><CRLF><Body>
@@ -83,7 +89,7 @@ public class Peer implements BackupService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("[FILE BACKEDUP] : " + filePath);
+        System.out.println("\n[FILE BACKEDUP] : " + filePath + "\n");
         return 0;
     }
 
@@ -107,7 +113,7 @@ public class Peer implements BackupService {
         
         restoreChannel.setReadingChunks(true);
         while(true) {
-            System.out.println("ChunkNo. " +chunkNo);
+            //System.out.println("ChunkNo. " +chunkNo);
             restoreChannel.setReceivedChunk(false);
             header = String.format("%s GETCHUNK %d %s %d \r\n \r\n", version, id, fileIdName, chunkNo).getBytes();
             controlChannel.broadcast(header);
@@ -127,9 +133,10 @@ public class Peer implements BackupService {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                System.out.println(chunkReceived.length);
+                //System.out.println(chunkReceived.length);
                 if(chunkReceived.length < MAX_CHUNK_SIZE) break;
             }
+            System.out.println("Chunk " + chunkNo + " restored");
             chunkNo++;
         }
         restoreChannel.setReadingChunks(false);
@@ -138,7 +145,7 @@ public class Peer implements BackupService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("[FILE RESTORED] : " + filePath + "_1" );
+        System.out.println("\n[FILE RESTORED] : " + filePath + "_restored\n" );
 
         // <Version> GETCHUNK <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
 
@@ -160,7 +167,7 @@ public class Peer implements BackupService {
         controlChannel.broadcast(header);
         
         //<Version> DELETE <SenderId> <FileId> <CRLF><CRLF>
-
+        System.out.println("\n[FILE DELETED] : " + filePath + "\n" );
         return 0;
     }
     

@@ -57,7 +57,7 @@ public class MDBchannel implements Runnable {
               try (DatagramSocket serverSocket = new DatagramSocket()) {
                      DatagramPacket msgPacket = new DatagramPacket(msg, msg.length, group, port);
                      serverSocket.send(msgPacket);
-                     System.out.println("MDB sent packet with msg: " + msg);
+                     //System.out.println("MDB sent packet with msg: " + msg);
               } catch (IOException ex) {
                      ex.printStackTrace();
               }
@@ -83,8 +83,6 @@ public class MDBchannel implements Runnable {
                      }
               }
               body = Arrays.copyOfRange(msg, (sizesplit + 1), msg.length);
-              System.out.println("BODY LENGTH: " +body.length);
-              System.out.println("MESSAGE LENGTH: " +msg.length);
               String headerString = new String(header);
 
               String[] argsNew = headerString.split(" ");
@@ -100,7 +98,7 @@ public class MDBchannel implements Runnable {
               if (Integer.parseInt(argsNew[2]) == peerId) {
                      return;
               }
-
+              controlChannel.chunksStored.put(argsNew[3]+argsNew[4],0);
               Random rand = new Random();
               int tempo = rand.nextInt(400);
               try {
@@ -125,7 +123,7 @@ public class MDBchannel implements Runnable {
                             OutputStream outst = new FileOutputStream(novoFicheiro);
                             outst.write(body);
                             outst.close();
-
+                            System.out.println("Stored chunk number: " + argsNew[4]);
                      }catch(Exception e){
                             e.printStackTrace();
                      }
