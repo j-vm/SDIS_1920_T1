@@ -8,6 +8,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -81,6 +83,9 @@ public class MCchannel implements Runnable{
               if (Integer.parseInt(argsNew[2]) == peerId) {
                      return;
               }
+
+              File pasta = new File("Peers/" + Integer.toString(peerId));
+              
               switch (argsNew[1]){
                      case "STORED":
                             String key = argsNew[3]+argsNew[4];
@@ -90,20 +95,20 @@ public class MCchannel implements Runnable{
                             break;             
                      
                      case "DELETE":
-                            File pasta = new File("Peers/" + Integer.toString(peerId));
+                            //Search for the chunks with a given FileiD
                             File[] chunksGuardados = pasta.listFiles(new FilenameFilter() {
-                            public boolean accept(File dir, String name) {
-                                   return name.startsWith(argsNew[3]);
-                            }
+                                   public boolean accept(File dir, String name) {
+                                          return name.startsWith(argsNew[3]);
+                                   }
                             });
                             int numChunksGuardados = chunksGuardados.length;
+                            //Deletes all the chunks with the specified FileId
                             for (int j = 0; j< numChunksGuardados; j++){
                                    chunksGuardados[j].delete();
                             }
                             
                      case "GETCHUNK":
-                            //Search for existing file
-                            
+                            // Wait random time for a CHUNK message
                             Random rand = new Random();
                             int tempo = rand.nextInt(400);
                             try {
@@ -112,17 +117,25 @@ public class MCchannel implements Runnable{
                                    e.printStackTrace();
                             }
                             if(!chunkReceived){
+                                   //Get File specified
+                                   File[] chunksRestore = pasta.listFiles(new FilenameFilter() {
+                                          public boolean accept(File dir, String name) {
+                                                 return name.startsWith(argsNew[3]) && name.endsWith(argsNew[4]);
+                                          }
+                                          });
+
+                                   //Format Header of CHUNK message
                                    byte[] header = String
-                                          .format("%s PUTCHUNK %s %s %s  \r\n \r\n", argsNew[0], argsNew[2], argsNew[3], argsNew[4])
+                                          .format("%s CHUNK %s %s %s \r\n \r\n", argsNew[0], argsNew[2], argsNew[3], argsNew[4])
                                           .getBytes();
-                                   byte body[] = null;
-                                   /*
+                                   // Make BODY of Message
+                                   byte body[] = new byte[64000];
                                    try {
-                                          body = Files.readAllBytes(Paths.get(chunkFiles.get(i).getPath()));
+                                          body = Files.readAllBytes(Paths.get(chunksRestore[0].getPath()));
                                    } catch (IOException e) {
                                           e.printStackTrace();
                                    }
-                                   */
+                                   
                                    byte[] msg2 = new byte[header.length + body.length];
                                    System.arraycopy(header, 0, msg2, 0, header.length);
                                    System.arraycopy(body, 0, msg2, header.length, body.length);
