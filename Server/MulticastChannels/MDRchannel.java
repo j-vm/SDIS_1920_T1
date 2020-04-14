@@ -33,7 +33,7 @@ public class MDRchannel implements Runnable{
 			socket = new MulticastSocket(port);
 			socket.setTimeToLive(1);
                      socket.joinGroup(group);
-                     byte[] buf = new byte[6400];
+                     byte[] buf = new byte[65000];
                      
                      while(true){
                             DatagramPacket recv = new DatagramPacket(buf, buf.length);       

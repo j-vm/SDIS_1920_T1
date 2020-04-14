@@ -48,27 +48,26 @@ public class Peer implements BackupService {
         try {
             fis = new FileInputStream(ficheiro);
         } catch (FileNotFoundException e1) {
-            // TODO Auto-generated catch block
             e1.printStackTrace();
         }
 
         String fileId = String.format("%s_%s", fileName, ficheiro.lastModified());
-
+        String fileIdName = String.format("%s", hash256(fileId));
         int chunkNumber = 1;
 
         int bytesAmount = 0;
         
         try {
             while ((bytesAmount = fis.read(buffer)) != -1) {
-                byte[] header = String.format("%s PUTCHUNK %d %s %d %d \r\n \r\n", version, id, fileId, chunkNumber,
+                byte[] header = String.format("%s PUTCHUNK %d %s %d %d \r\n \r\n", version, id, fileIdName, chunkNumber,
                         replicationDegree).getBytes();
-
                 byte body[] = buffer;
                 byte[] msg = new byte[header.length + body.length];
                 System.arraycopy(header, 0, msg, 0, header.length);
                 System.arraycopy(body, 0, msg, header.length, body.length);
+                System.out.println(msg.length);
                 backupChannel.broadcast(msg);
-                String key = String.format("%d%s%d", id, fileId, chunkNumber);
+                String key = String.format("%s%d", fileId, chunkNumber);
                 int waitTime = 0;
                 while (controlChannel.chunksStored.get(key) == null
                         || controlChannel.chunksStored.get(key) < replicationDegree) {
@@ -77,7 +76,7 @@ public class Peer implements BackupService {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    if (waitTime > 400) {
+                    if (waitTime > 500) {
                         System.out.println("Error backing up file in chunk number:" + chunkNumber);
                         return -1;
                     }

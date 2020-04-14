@@ -38,7 +38,7 @@ public class MDBchannel implements Runnable {
                      socket = new MulticastSocket(port);
                      socket.setTimeToLive(1);
                      socket.joinGroup(group);
-                     byte[] buf = new byte[6400];
+                     byte[] buf = new byte[65000];
 
                      while (true) {
                             DatagramPacket recv = new DatagramPacket(buf, buf.length);
@@ -69,7 +69,7 @@ public class MDBchannel implements Runnable {
               byte[] split = tempSplit.getBytes();
               int sizesplit = 0;
               byte[] header = null;
-              byte[] body = null;
+              byte[] body = new byte[64000];
               int indice = 0;
               // spliting header and body
               for (byte b : msg) {
@@ -84,7 +84,8 @@ public class MDBchannel implements Runnable {
                      }
               }
               body = Arrays.copyOfRange(msg, (sizesplit + 1), (msg.length - 1));
-
+              System.out.println("BODY LENGTH: " +body.length);
+              System.out.println("MESSAGE LENGTH: " +msg.length);
               String headerString = new String(header);
 
               String[] argsNew = headerString.split(" ");
