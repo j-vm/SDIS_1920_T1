@@ -108,8 +108,10 @@ public class MDBchannel implements Runnable {
               } catch (InterruptedException e) {
                      e.printStackTrace();
               }
-              if (controlChannel.chunksStored.get(argsNew[2]+argsNew[3]+argsNew[4]) == null) sendChunk(argsNew, body);
-              else if (controlChannel.chunksStored.get(argsNew[2]+argsNew[3]+argsNew[4]) < Integer.parseInt(argsNew[5])) sendChunk(argsNew, body);
+              System.out.println("MDB KEY ====" + argsNew[3]+argsNew[4] + "===");
+              System.out.println("VALUE ====" + controlChannel.chunksStored.get(argsNew[3]+argsNew[4]) + "===");
+              if (controlChannel.chunksStored.get(argsNew[3]+argsNew[4]) == null) sendChunk(argsNew, body);
+              else if (controlChannel.chunksStored.get(argsNew[3]+argsNew[4]) < Integer.parseInt(argsNew[5])) sendChunk(argsNew, body);
               
        }
 

@@ -81,7 +81,8 @@ public class MCchannel implements Runnable{
               }
               switch (argsNew[1]){
                      case "STORED":
-                            String key = argsNew[2]+argsNew[3]+argsNew[4];
+                            String key = argsNew[3]+argsNew[4];
+                            System.out.println("MC KEY ==="+key+ "===");
                             if(chunksStored.containsKey(key)) chunksStored.put(key, chunksStored.get(key) + 1);
                             else chunksStored.put(key,1);
                             break;             
