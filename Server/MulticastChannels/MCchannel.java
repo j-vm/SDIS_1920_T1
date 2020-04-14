@@ -56,7 +56,7 @@ public class MCchannel implements Runnable{
               try (DatagramSocket serverSocket = new DatagramSocket()) {
                      DatagramPacket msgPacket = new DatagramPacket(msg, msg.length, group, port);
                      serverSocket.send(msgPacket);
-                     System.out.println("Server sent packet with msg: " + msg);
+                     System.out.println("MC sent packet with msg: " + msg);
               } catch (IOException ex) {
                      ex.printStackTrace();
               }
@@ -67,7 +67,7 @@ public class MCchannel implements Runnable{
 
               String[] argsNew = headerString.split(" ");
 
-              if (argsNew[0] != "1.0") {
+              if (!argsNew[0].equals("1.0")) {
                      System.out.println("Message version not recognized");
                      return;
               }

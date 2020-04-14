@@ -158,10 +158,6 @@ public class Peer implements BackupService {
         Thread threadMDR = new Thread(restoreChannel);
 
         
-        File storage = new File("/Peers", Integer.toString(id));
-        if(!storage.exists()){
-            storage.mkdir();
-        }
 
         threadMC.start();
         System.err.println("Peer " + id + " [Connected to MC]");

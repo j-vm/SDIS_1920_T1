@@ -55,7 +55,7 @@ public class MDRchannel implements Runnable{
               try (DatagramSocket serverSocket = new DatagramSocket()) {
                      DatagramPacket msgPacket = new DatagramPacket(msg, msg.length, group, port);
                      serverSocket.send(msgPacket);
-                     System.out.println("Server sent packet with msg: " + msg);
+                     System.out.println("MDR sent packet with msg: " + msg);
               } catch (IOException ex) {
                      ex.printStackTrace();
               }

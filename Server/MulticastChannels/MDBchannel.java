@@ -58,7 +58,7 @@ public class MDBchannel implements Runnable {
               try (DatagramSocket serverSocket = new DatagramSocket()) {
                      DatagramPacket msgPacket = new DatagramPacket(msg, msg.length, group, port);
                      serverSocket.send(msgPacket);
-                     System.out.println("Server sent packet with msg: " + msg);
+                     System.out.println("MDB sent packet with msg: " + msg);
               } catch (IOException ex) {
                      ex.printStackTrace();
               }
@@ -89,11 +89,11 @@ public class MDBchannel implements Runnable {
 
               String[] argsNew = headerString.split(" ");
 
-              if (argsNew[0] != "1.0") {
+              if (!argsNew[0].equals("1.0")) {
                      System.out.println("Message version not recognized");
                      return;
               }
-              if (argsNew[1] != "PUTCHUNK") {
+              if (!argsNew[1].equals("PUTCHUNK")) {
                      System.out.println("Message Type not recognized");
                      return;
               }
@@ -108,13 +108,18 @@ public class MDBchannel implements Runnable {
               } catch (InterruptedException e) {
                      e.printStackTrace();
               }
-              if (controlChannel.chunksStored.get(argsNew[2]+argsNew[3]+argsNew[4]) < Integer.parseInt(argsNew[5]) || controlChannel.chunksStored.get(argsNew[2]+argsNew[3]+argsNew[4]) == null){
-                     byte[] storedMsg = String
+              if (controlChannel.chunksStored.get(argsNew[2]+argsNew[3]+argsNew[4]) == null) sendChunk(argsNew, body);
+              else if (controlChannel.chunksStored.get(argsNew[2]+argsNew[3]+argsNew[4]) < Integer.parseInt(argsNew[5])) sendChunk(argsNew, body);
+              
+       }
+
+       private void sendChunk(String argsNew[], byte body[]){
+              byte[] storedMsg = String
                     .format("%s STORED %d %s %s \r\n \r\n", argsNew[0], peerId, argsNew[3], argsNew[4])
                     .getBytes();
                      controlChannel.broadcast(storedMsg);
                      String nomeNovoFicheiro = (argsNew[3]+"."+argsNew[4]);
-                     String path = "Peer" + Integer.toString(peerId);
+                     String path = "Peers/" + Integer.toString(peerId);
                      File novoFicheiro = new File(path,nomeNovoFicheiro);
                      try{
                             OutputStream outst = new FileOutputStream(novoFicheiro);
@@ -124,7 +129,5 @@ public class MDBchannel implements Runnable {
                      }catch(Exception e){
                             e.printStackTrace();
                      }
-              }
-              
        }
 }
