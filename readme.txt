@@ -13,14 +13,14 @@ javac ./Client/TestApp.java
 To run:
 
 Start a Peer:
-java .Server.Peer 1.0 <peer_number> 1 224.0.0.0:24 224.0.0.0:25 224.0.0.0:26
+java Server.Peer 1.0 <peer_number> 1 224.0.0.0:24 224.0.0.0:25 224.0.0.0:26
 
 example for Peer 1:
-java .Server.Peer 1.0 1 1 224.0.0.0:24 224.0.0.0:25 224.0.0.0:26
+java Server.Peer 1.0 1 1 224.0.0.0:24 224.0.0.0:25 224.0.0.0:26
 
 
 To the Client:
-java .Client.TestApp <peer_number> <sub_protocol> <opnd_1> <opnd_2> 
+java Client.TestApp <peer_number> <sub_protocol> <opnd_1> <opnd_2> 
 
 example:
-java .Client.TestApp 1 BACKUP test.jpg 2
+java Client.TestApp 1 BACKUP test.jpg 2
