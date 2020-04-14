@@ -95,12 +95,15 @@ public class Peer implements BackupService {
 
         String fileIdName = String.format("%s", hash256(fileId));
 
+        String [] arrayStrings = filePath.split("\\.",2);
+        String newFilePath = String.format("%s_restored.%s", arrayStrings[0], arrayStrings[1]);
+
         int chunkNo = 1;
         byte[] header = null;
         byte[] chunkReceived = new byte[64000];
         FileOutputStream restoredFile = null;
         try {
-            restoredFile = new FileOutputStream(filePath + "_1");
+            restoredFile = new FileOutputStream(newFilePath);
         } catch (FileNotFoundException e1) {
             e1.printStackTrace();
         }
@@ -138,7 +141,7 @@ public class Peer implements BackupService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("[FILE RESTORED] : " + filePath + "_1" );
+        System.out.println("[FILE RESTORED] : " + newFilePath);
 
         // <Version> GETCHUNK <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
 
