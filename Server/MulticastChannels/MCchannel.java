@@ -10,6 +10,7 @@ import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -49,7 +50,7 @@ public class MCchannel implements Runnable{
                      while(true){
                             DatagramPacket recv = new DatagramPacket(buf, buf.length);       
                             socket.receive(recv);
-                            byte msg[] = recv.getData();
+                            byte msg[] = Arrays.copyOfRange(buf, 0, recv.getLength());
                             receivedMessage(msg);
                      }
                             
@@ -103,7 +104,7 @@ public class MCchannel implements Runnable{
                             for (int j = 0; j< numSavedChunks; j++){
                                    savedChunks[j].delete();
                             }
-                            
+                            break;
                      case "GETCHUNK":
                             System.out.println("GETCHUNK: " + argsNew[3]+ " " + argsNew[4]);
                             File[] savedChunk = folder.listFiles(new FilenameFilter() {
@@ -126,19 +127,18 @@ public class MCchannel implements Runnable{
                                    byte[] header = String
                                           .format("%s CHUNK %s %s %s  \r\n \r\n", argsNew[0], peerId, argsNew[3], argsNew[4])
                                           .getBytes();
-                                   byte body[] = new byte[64000];
-
                                    try {
-                                          body = Files.readAllBytes(savedChunk[0].toPath());
+                                          byte body[] = Files.readAllBytes(savedChunk[0].toPath());
+                                          byte[] msg2 = new byte[header.length + body.length];
+                                          System.arraycopy(header, 0, msg2, 0, header.length);
+                                          System.arraycopy(body, 0, msg2, header.length, body.length);
+                                          restoreChannel.broadcast(msg2);
                                    } catch (IOException e) {
                                           e.printStackTrace();
                                    }
 
-                                   byte[] msg2 = new byte[header.length + body.length];
-                                   System.arraycopy(header, 0, msg2, 0, header.length);
-                                   System.arraycopy(body, 0, msg2, header.length, body.length);
-                                   restoreChannel.broadcast(msg2);
                             }
+                            break;
                      default:
                             System.out.println("Unrecognized message type: " + argsNew[1]);
                             break;

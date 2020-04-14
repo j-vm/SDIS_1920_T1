@@ -43,9 +43,8 @@ public class MDBchannel implements Runnable {
                      while (true) {
                             DatagramPacket recv = new DatagramPacket(buf, buf.length);
                             socket.receive(recv);
-                            byte msg[] = recv.getData();
+                            byte msg[] = Arrays.copyOfRange(buf, 0, recv.getLength());
                             receivedMessage(msg);
-                            // System.out.println(buf);
                      }
 
               } catch (IOException e) {
@@ -83,7 +82,7 @@ public class MDBchannel implements Runnable {
                             continue;
                      }
               }
-              body = Arrays.copyOfRange(msg, (sizesplit + 1), (msg.length - 1));
+              body = Arrays.copyOfRange(msg, (sizesplit + 1), msg.length);
               System.out.println("BODY LENGTH: " +body.length);
               System.out.println("MESSAGE LENGTH: " +msg.length);
               String headerString = new String(header);

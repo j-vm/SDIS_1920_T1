@@ -51,6 +51,7 @@ public class Peer implements BackupService {
 
         try {
             while (fis.read(buffer) != -1) {
+                // TODO:controlChannel.chunksStored.ger(key)
                 byte[] header = String.format("%s PUTCHUNK %d %s %d %d \r\n \r\n", version, id, fileIdName, chunkNumber,
                         replicationDegree).getBytes();
                 byte body[] = buffer;
@@ -125,6 +126,7 @@ public class Peer implements BackupService {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                System.out.println(chunkReceived.length);
                 if(chunkReceived.length < MAX_CHUNK_SIZE) break;
             }
             chunkNo++;

@@ -74,8 +74,7 @@ public class MDRchannel implements Runnable{
                      while(true){
                             DatagramPacket recv = new DatagramPacket(buf, buf.length);       
                             socket.receive(recv);
-                            recv.getData();
-                            byte msg[] = recv.getData();
+                            byte msg[] = Arrays.copyOfRange(buf, 0, recv.getLength());
                             receivedMessage(msg);
                      }
                             
@@ -135,7 +134,7 @@ public class MDRchannel implements Runnable{
 
               if(!getReceivedChunk()) setReceivedChunk(true);
               if(getReadingChunks()){
-                     restoredChunk = Arrays.copyOfRange(msg, (sizesplit + 1), (msg.length - 1));
+                     restoredChunk = Arrays.copyOfRange(msg, (sizesplit + 1), msg.length);
                      restoredChunkName = argsNew[3] + "." + argsNew[4];
               }
               
