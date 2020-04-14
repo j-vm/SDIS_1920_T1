@@ -73,6 +73,7 @@ public class Peer implements BackupService {
             // <Version> PUTCHUNK <SenderId> <FileId> <ChunkNo> <ReplicationDeg>
             // <CRLF><CRLF><Body>
         }
+        chunkFiles.clear();
         return 0;
     }
 
