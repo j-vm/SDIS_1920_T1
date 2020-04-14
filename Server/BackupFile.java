@@ -1,18 +1,15 @@
 package Server;
 
 import java.io.*;
-import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.NoSuchAlgorithmException;
 
-
-import javax.naming.directory.BasicAttributes;
-
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class BackupFile {
 
@@ -42,9 +39,6 @@ public class BackupFile {
               byte [] buffer = new byte[MAX_CHUNK_SIZE]; // maximum size of chunk
 
               File ficheiro = new File(filePath);
-
-              
-              BasicFileAttributes attrs = (BasicFileAttributes) Files.readAttributes(p1, "lastModifiedTime");// metadata
               
               String fileName = ficheiro.getName();
 
@@ -54,7 +48,7 @@ public class BackupFile {
                      int bytesAmount = 0;
                      while ((bytesAmount = bis.read(buffer)) > 0) {
                             //write each chunk of data into separate file with different number in name
-                            String fileId = String.format("%s_%s", fileName,attrs.lastModifiedTime());
+                            String fileId = String.format("%s_%s", fileName, ficheiro.lastModified());
                             String fileIdName = String.format("%s.%03d",hash256(fileId),chunkNumber++);
                             File newFile = new File(ficheiro.getParent(), fileIdName);
                             try (FileOutputStream out = new FileOutputStream(newFile)) {

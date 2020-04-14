@@ -114,7 +114,8 @@ public class MDBchannel implements Runnable {
                     .getBytes();
                      controlChannel.broadcast(storedMsg);
                      String nomeNovoFicheiro = (argsNew[3]+"."+argsNew[4]);
-                     File novoFicheiro = new File(nomeNovoFicheiro);
+                     String path = "Peer" + Integer.toString(peerId);
+                     File novoFicheiro = new File(path,nomeNovoFicheiro);
                      try{
                             OutputStream outst = new FileOutputStream(novoFicheiro);
                             outst.write(body);
