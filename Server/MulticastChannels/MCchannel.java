@@ -9,6 +9,7 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -104,11 +105,14 @@ public class MCchannel implements Runnable{
                             }
                             
                      case "GETCHUNK":
+                            System.out.println("GETCHUNK: " + argsNew[3]+ " " + argsNew[4]);
                             File[] savedChunk = folder.listFiles(new FilenameFilter() {
                             public boolean accept(File dir, String name) {
-                                   return name.startsWith(argsNew[3] + "." + argsNew[4]);
+                                   System.out.println("NAME: " + name + "\nCOMPARISON: "+ argsNew[3]+ "." + argsNew[4] + "\nTRUTH VALUE: "+ Boolean.toString(name.contains(argsNew[3]+ "." + argsNew[4])));
+                                   return name.contains(argsNew[3] + "." + argsNew[4]);
                             }
                             });
+                            System.out.println("IS SAVED?: " + Integer.toString(savedChunk.length));
                             if (savedChunk.length < 1) return; //Only procede if has chunk
 
                             restoreChannel.setReceivedChunk(false);

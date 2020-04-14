@@ -20,8 +20,6 @@ public class Peer implements BackupService {
     private static MDBchannel backupChannel;
     private static MDRchannel restoreChannel;
 
-    
-
     public static String hash256(String toHash) {
         String hashedString = null;
         try {
@@ -95,31 +93,49 @@ public class Peer implements BackupService {
 
         String fileIdName = String.format("%s", hash256(fileId));
 
-        int chunkNo = 0;
-        int numberChunks = (int) (ficheiro.length() / MAX_CHUNK_SIZE) + 1;
-
+        int chunkNo = 1;
         byte[] header = null;
-
+        byte[] chunkReceived = new byte[64000];
+        FileOutputStream restoredFile = null;
+        try {
+            restoredFile = new FileOutputStream(filePath + "_1");
+        } catch (FileNotFoundException e1) {
+            e1.printStackTrace();
+        }
+        
         restoreChannel.setReadingChunks(true);
-        for (int i = 0; i < numberChunks; i++) {
+        while(true) {
+            System.out.println("ChunkNo. " +chunkNo);
             restoreChannel.setReceivedChunk(false);
-            chunkNo = i;
-            header = String.format("%s GETCHUNK %d %d %d %d \r\n \r\n", version, id, fileIdName, chunkNo).getBytes();
+            header = String.format("%s GETCHUNK %d %s %d\r\n \r\n", version, id, fileIdName, chunkNo).getBytes();
+            controlChannel.broadcast(header);
             try {
-                Thread.sleep(400);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            if (!restoreChannel.getReceivedChunk()){
-                System.out.println("Error restoring chunk number: " + Integer.toString(i));
+            if (!restoreChannel.getReceivedChunk()) {
+                System.out.println("Error restoring chunk number: " + Integer.toString(chunkNo));
                 break;
             }
-            if(restoreChannel.getRestoredChunkName().equals(fileIdName + "." + chunkNo)){
-                
+            if (restoreChannel.getRestoredChunkName().equals(fileIdName + "." + chunkNo)) {
+                chunkReceived = restoreChannel.getRestoredChunk();
+                try {
+                    restoredFile.write(chunkReceived);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if(chunkReceived.length < MAX_CHUNK_SIZE) break;
             }
+            chunkNo++;
         }
         restoreChannel.setReadingChunks(false);
-        controlChannel.broadcast(header);
+        try {
+            restoredFile.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("[FILE RESTORED] : " + filePath + "_1" );
 
         // <Version> GETCHUNK <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>
 
