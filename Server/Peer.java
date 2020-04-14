@@ -107,7 +107,7 @@ public class Peer implements BackupService {
         while(true) {
             System.out.println("ChunkNo. " +chunkNo);
             restoreChannel.setReceivedChunk(false);
-            header = String.format("%s GETCHUNK %d %s %d\r\n \r\n", version, id, fileIdName, chunkNo).getBytes();
+            header = String.format("%s GETCHUNK %d %s %d \r\n \r\n", version, id, fileIdName, chunkNo).getBytes();
             controlChannel.broadcast(header);
             try {
                 Thread.sleep(500);

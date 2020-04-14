@@ -108,11 +108,9 @@ public class MCchannel implements Runnable{
                             System.out.println("GETCHUNK: " + argsNew[3]+ " " + argsNew[4]);
                             File[] savedChunk = folder.listFiles(new FilenameFilter() {
                             public boolean accept(File dir, String name) {
-                                   System.out.println("NAME: " + name + "\nCOMPARISON: "+ argsNew[3]+ "." + argsNew[4] + "\nTRUTH VALUE: "+ Boolean.toString(name.contains(argsNew[3]+ "." + argsNew[4])));
-                                   return name.contains(argsNew[3] + "." + argsNew[4]);
+                                   return name.startsWith(argsNew[3] + "." + argsNew[4]);
                             }
                             });
-                            System.out.println("IS SAVED?: " + Integer.toString(savedChunk.length));
                             if (savedChunk.length < 1) return; //Only procede if has chunk
 
                             restoreChannel.setReceivedChunk(false);
