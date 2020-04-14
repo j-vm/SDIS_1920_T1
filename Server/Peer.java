@@ -3,6 +3,7 @@ package Server;
 import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.*;
@@ -14,6 +15,8 @@ import Server.MulticastChannels.*;
 
 public class Peer implements BackupService {
 
+    static final int MAX_CHUNK_SIZE = 64000; // Bytes
+
     private static int id;
     private static String version;
     private static int service_access_point;
@@ -23,8 +26,73 @@ public class Peer implements BackupService {
     private static MDBchannel backupChannel;
     private static MDRchannel restoreChannel;
 
+    public static String hash256(String toHash) {
+        String hashedString = null;
+        try {
+               hashedString = Hashing.toHexString(Hashing.getSHA(toHash));
+        } catch (NoSuchAlgorithmException e) {
+               e.printStackTrace();
+        }
+
+        return hashedString;
+
+ }
+
     public int backup(String filePath, int replicationDegree) {
 
+        byte[] buffer = new byte[MAX_CHUNK_SIZE]; // maximum size of chunk
+
+        File ficheiro = new File(filePath);
+        String fileName = ficheiro.getName();
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(ficheiro);
+        } catch (FileNotFoundException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+
+        String fileId = String.format("%s_%s", fileName, ficheiro.lastModified());
+
+        int chunkNumber = 1;
+
+        int bytesAmount = 0;
+        
+        try {
+            while ((bytesAmount = fis.read(buffer)) != -1) {
+                byte[] header = String.format("%s PUTCHUNK %d %s %d %d \r\n \r\n", version, id, fileId, chunkNumber,
+                        replicationDegree).getBytes();
+
+                byte body[] = buffer;
+                byte[] msg = new byte[header.length + body.length];
+                System.arraycopy(header, 0, msg, 0, header.length);
+                System.arraycopy(body, 0, msg, header.length, body.length);
+                backupChannel.broadcast(msg);
+                String key = String.format("%d%s%d", id, fileId, chunkNumber);
+                int waitTime = 0;
+                while (controlChannel.chunksStored.get(key) == null
+                        || controlChannel.chunksStored.get(key) < replicationDegree) {
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if (waitTime > 400) {
+                        System.out.println("Error backing up file in chunk number:" + chunkNumber);
+                        return -1;
+                    }
+                    waitTime += 10;
+                }
+                // <Version> PUTCHUNK <SenderId> <FileId> <ChunkNo> <ReplicationDeg>
+                // <CRLF><CRLF><Body>
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        
+        /*
         List<File> chunkFiles = new ArrayList<File>(); // List of chunks of a file
         int chunkNo; // number of a given chunk
 
@@ -75,6 +143,8 @@ public class Peer implements BackupService {
         }
         chunkFiles.clear();
         System.out.println("[FILE BACKEDUP] : " + filePath);
+        */
+        System.out.println("[FILE BACKEDUP] : " + filePath);
         return 0;
     }
 
@@ -84,7 +154,7 @@ public class Peer implements BackupService {
         String fileName = ficheiro.getName();
         String fileId = String.format("%s_%s", fileName, ficheiro.lastModified());
 
-        String fileIdName = String.format("%s", BackupFile.hash256(fileId));
+        String fileIdName = String.format("%s", hash256(fileId));
 
         int chunkNo = 0;
         int numberChunks = (int) (ficheiro.length() / 64000);
@@ -110,7 +180,7 @@ public class Peer implements BackupService {
         String fileName = ficheiro.getName();
         String fileId = String.format("%s_%s", fileName, ficheiro.lastModified());
 
-        String fileIdName = String.format("%s",BackupFile.hash256(fileId));
+        String fileIdName = String.format("%s",hash256(fileId));
 
 
         byte[] header = String
