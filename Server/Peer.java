@@ -29,14 +29,14 @@ public class Peer implements BackupService {
     public static String hash256(String toHash) {
         String hashedString = null;
         try {
-               hashedString = Hashing.toHexString(Hashing.getSHA(toHash));
+            hashedString = Hashing.toHexString(Hashing.getSHA(toHash));
         } catch (NoSuchAlgorithmException e) {
-               e.printStackTrace();
+            e.printStackTrace();
         }
 
         return hashedString;
 
- }
+    }
 
     public int backup(String filePath, int replicationDegree) {
 
@@ -56,7 +56,7 @@ public class Peer implements BackupService {
         int chunkNumber = 1;
 
         int bytesAmount = 0;
-        
+
         try {
             while ((bytesAmount = fis.read(buffer)) != -1) {
                 byte[] header = String.format("%s PUTCHUNK %d %s %d %d \r\n \r\n", version, id, fileIdName, chunkNumber,
@@ -102,18 +102,26 @@ public class Peer implements BackupService {
         String fileIdName = String.format("%s", hash256(fileId));
 
         int chunkNo = 0;
-        int numberChunks = (int) (ficheiro.length() / 64000);
+        int numberChunks = (int) (ficheiro.length() / MAX_CHUNK_SIZE) + 1;
 
-        if (numberChunks == 0)
-            numberChunks = 1;
         byte[] header = null;
 
+        restoreChannel.setReadingChunks(true);
         for (int i = 0; i < numberChunks; i++) {
+            restoreChannel.setReceivedChunk(false);
             chunkNo = i;
             header = String.format("%s GETCHUNK %d %d %d %d \r\n \r\n", version, id, fileIdName, chunkNo).getBytes();
-            //TODO: Wait for chunk to be recieved
+            try {
+                Thread.sleep(400);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (!restoreChannel.getReceivedChunk()){
+                System.out.println("Error restoring chunk number: " + Integer.toString(i));
+                break;
+            }
         }
-
+        restoreChannel.setReadingChunks(false);
         controlChannel.broadcast(header);
 
         // <Version> GETCHUNK <SenderId> <FileId> <ChunkNo> <CRLF><CRLF>

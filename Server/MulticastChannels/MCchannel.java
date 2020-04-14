@@ -8,6 +8,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -19,12 +20,12 @@ public class MCchannel implements Runnable{
        private int port;
        private InetAddress group;
        private int peerId;
-       public HashMap<String, Integer> chunksStored = new HashMap<String, Integer>();
-       private static MDRchannel restoreChannel;
+       public volatile HashMap<String, Integer> chunksStored = new HashMap<String, Integer>();
+       private MDRchannel restoreChannel;
        
 
 
-       public MCchannel(String ip, int port, int peerId) {
+       public MCchannel(String ip, int port, int peerId, MDRchannel restoreChannel) {
               this.port = port;
               try {
                      this.group = InetAddress.getByName(ip);
@@ -33,6 +34,7 @@ public class MCchannel implements Runnable{
                      e.printStackTrace();
               }
               this.peerId = peerId;
+              this.restoreChannel = restoreChannel;
        }
 
        @Override
@@ -48,7 +50,6 @@ public class MCchannel implements Runnable{
                             socket.receive(recv);
                             byte msg[] = recv.getData();
                             receivedMessage(msg);
-                            System.out.println(buf);
                      }
                             
 		} catch (IOException e) {
@@ -70,7 +71,6 @@ public class MCchannel implements Runnable{
        private void receivedMessage(byte[] msg) {
 
               String headerString = new String(msg);
-              boolean chunkReceived = false;
 
               String[] argsNew = headerString.split(" ");
 
@@ -90,19 +90,28 @@ public class MCchannel implements Runnable{
                             break;             
                      
                      case "DELETE":
-                            File pasta = new File("Peers/" + Integer.toString(peerId));
-                            File[] chunksGuardados = pasta.listFiles(new FilenameFilter() {
+                            File folder = new File("Peers/" + Integer.toString(peerId));
+                            File[] savedChunks = folder.listFiles(new FilenameFilter() {
                             public boolean accept(File dir, String name) {
                                    return name.startsWith(argsNew[3]);
                             }
                             });
-                            int numChunksGuardados = chunksGuardados.length;
-                            for (int j = 0; j< numChunksGuardados; j++){
-                                   chunksGuardados[j].delete();
+                            int numSavedChunks = savedChunks.length;
+                            for (int j = 0; j< numSavedChunks; j++){
+                                   savedChunks[j].delete();
                             }
                             
                      case "GETCHUNK":
-                            //Search for existing file
+
+                            File folder1 = new File("Peers/" + Integer.toString(peerId));
+                            File[] savedChunk = folder1.listFiles(new FilenameFilter() {
+                            public boolean accept(File dir, String name) {
+                                   return name.startsWith(argsNew[3] + "." + argsNew[4]);
+                            }
+                            });
+                            if (savedChunk.length < 1) return; //Only procede if has chunk
+
+                            restoreChannel.setReceivedChunk(false);
                             
                             Random rand = new Random();
                             int tempo = rand.nextInt(400);
@@ -111,25 +120,23 @@ public class MCchannel implements Runnable{
                             } catch (InterruptedException e) {
                                    e.printStackTrace();
                             }
-                            if(!chunkReceived){
+                            if(!restoreChannel.getReceivedChunk()){
                                    byte[] header = String
-                                          .format("%s PUTCHUNK %s %s %s  \r\n \r\n", argsNew[0], argsNew[2], argsNew[3], argsNew[4])
+                                          .format("%s CHUNK %s %s %s  \r\n \r\n", argsNew[0], peerId, argsNew[3], argsNew[4])
                                           .getBytes();
-                                   byte body[] = null;
-                                   /*
+                                   byte body[] = new byte[64000];
+
                                    try {
-                                          body = Files.readAllBytes(Paths.get(chunkFiles.get(i).getPath()));
+                                          body = Files.readAllBytes(savedChunk[0].toPath());
                                    } catch (IOException e) {
                                           e.printStackTrace();
                                    }
-                                   */
+
                                    byte[] msg2 = new byte[header.length + body.length];
                                    System.arraycopy(header, 0, msg2, 0, header.length);
                                    System.arraycopy(body, 0, msg2, header.length, body.length);
                                    restoreChannel.broadcast(msg2);
                             }
-                     case "CHUNK":
-                            chunkReceived = false; // TODO: Correct this
                      default:
                             System.out.println("Unrecognized message type: " + argsNew[1]);
                             break;
