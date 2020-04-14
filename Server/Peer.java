@@ -4,13 +4,7 @@ import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributes;
 import Server.MulticastChannels.*;
 
 public class Peer implements BackupService {
@@ -25,6 +19,8 @@ public class Peer implements BackupService {
     private static MCchannel controlChannel;
     private static MDBchannel backupChannel;
     private static MDRchannel restoreChannel;
+
+    
 
     public static String hash256(String toHash) {
         String hashedString = null;
@@ -55,10 +51,8 @@ public class Peer implements BackupService {
         String fileIdName = String.format("%s", hash256(fileId));
         int chunkNumber = 1;
 
-        int bytesAmount = 0;
-
         try {
-            while ((bytesAmount = fis.read(buffer)) != -1) {
+            while (fis.read(buffer) != -1) {
                 byte[] header = String.format("%s PUTCHUNK %d %s %d %d \r\n \r\n", version, id, fileIdName, chunkNumber,
                         replicationDegree).getBytes();
                 byte body[] = buffer;
@@ -120,6 +114,9 @@ public class Peer implements BackupService {
                 System.out.println("Error restoring chunk number: " + Integer.toString(i));
                 break;
             }
+            if(restoreChannel.getRestoredChunkName().equals(fileIdName + "." + chunkNo)){
+                
+            }
         }
         restoreChannel.setReadingChunks(false);
         controlChannel.broadcast(header);
@@ -172,9 +169,9 @@ public class Peer implements BackupService {
             Registry registry = LocateRegistry.createRegistry(id);
             registry.bind("BackupService", backupService);
 
-            System.err.println("Peer " + id + " [Connected to RMI]");
+            System.out.println("Peer " + id + " [Connected to RMI]");
         } catch (Exception e) {
-            System.err.println("Peer exception: " + e.toString());
+            System.out.println("Peer exception: " + e.toString());
             e.printStackTrace();
         }
 
@@ -186,11 +183,11 @@ public class Peer implements BackupService {
         dir.mkdirs();
 
         threadMC.start();
-        System.err.println("Peer " + id + " [Connected to MC]");
+        System.out.println("Peer " + id + " [Connected to MC]");
         threadMDB.start();
-        System.err.println("Peer " + id + " [Connected to MDB]");
+        System.out.println("Peer " + id + " [Connected to MDB]");
         threadMDR.start();
-        System.err.println("Peer " + id + " [Connected to MDR]");
+        System.out.println("Peer " + id + " [Connected to MDR]");
 
 
 
@@ -207,9 +204,9 @@ public class Peer implements BackupService {
             ips[i] = name[0];
             ports[i] = Integer.parseInt(name[1]);
         }
-        controlChannel = new MCchannel(ips[0], ports[0], id);
+        restoreChannel = new MDRchannel(ips[2], ports[2], id);     
+        controlChannel = new MCchannel(ips[0], ports[0], id, restoreChannel);
         backupChannel = new MDBchannel(ips[1], ports[1], id, controlChannel);
-        restoreChannel = new MDRchannel(ips[2], ports[2], id, controlChannel);     
         
         return true;
     }

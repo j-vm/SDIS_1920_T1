@@ -15,9 +15,26 @@ public class MDRchannel implements Runnable{
        private int port;
        private InetAddress group;
        private int peerId;
-       private MCchannel controlChannel;
        private volatile boolean receivedChunk = false;
        private volatile boolean readingChunks = false;
+       private volatile byte[] restoredChunk = new byte[64000];
+       private volatile String restoredChunkName;
+
+       public byte[] getRestoredChunk() {
+              return this.restoredChunk;
+       }
+
+       public void setRestoredChunk(byte[] restoredChunk) {
+              this.restoredChunk = restoredChunk;
+       }
+
+       public String getRestoredChunkName() {
+              return this.restoredChunkName;
+       }
+
+       public void setRestoredChunkName(String restoredChunkNumber) {
+              this.restoredChunkName = restoredChunkNumber;
+       }
 
 
        public boolean getReadingChunks() {
@@ -36,7 +53,7 @@ public class MDRchannel implements Runnable{
               this.receivedChunk = recivedChunk;
        }
 
-       public MDRchannel(String ip, int port, int peetId, MCchannel controlChannel) {
+       public MDRchannel(String ip, int port, int peetId) {
               this.port = port;
               try {
                      this.group = InetAddress.getByName(ip);
@@ -44,8 +61,7 @@ public class MDRchannel implements Runnable{
                      System.out.println("Unknown Host:\n");
                      e.printStackTrace();
               }
-              this.peerId = peerId;
-              this.controlChannel = controlChannel;
+              //this.peerId = peerId;
        }
 
        @Override
@@ -84,15 +100,11 @@ public class MDRchannel implements Runnable{
 
        private void receivedMessage(byte[] msg) {
               
-              if(!getReceivedChunk()) setReceivedChunk(true);
-              if(!getReadingChunks()) return;
-              
               
               String tempSplit = "\r\n \r\n";
               byte[] split = tempSplit.getBytes();
               int sizesplit = 0;
               byte[] header = null;
-              byte[] body = new byte[64000];
               int indice = 0;
               // spliting header and body
               for (byte b : msg) {
@@ -106,9 +118,6 @@ public class MDRchannel implements Runnable{
                             continue;
                      }
               }
-              body = Arrays.copyOfRange(msg, (sizesplit + 1), (msg.length - 1));
-              System.out.println("BODY LENGTH: " +body.length);
-              System.out.println("MESSAGE LENGTH: " +msg.length);
               String headerString = new String(header);
 
               String[] argsNew = headerString.split(" ");
@@ -117,7 +126,7 @@ public class MDRchannel implements Runnable{
                      System.out.println("Message version not recognized");
                      return;
               }
-              if (!argsNew[1].equals("PUTCHUNK")) {
+              if (!argsNew[1].equals("CHUNK")) {
                      System.out.println("Message Type not recognized");
                      return;
               }
@@ -125,12 +134,10 @@ public class MDRchannel implements Runnable{
                      return;
               }
 
-              Random rand = new Random();
-              int tempo = rand.nextInt(400);
-              try {
-                     Thread.sleep(tempo);
-              } catch (InterruptedException e) {
-                     e.printStackTrace();
+              if(!getReceivedChunk()) setReceivedChunk(true);
+              if(getReadingChunks()){
+                     restoredChunk = Arrays.copyOfRange(msg, (sizesplit + 1), (msg.length - 1));
+                     restoredChunkName = argsNew[3] + "." + argsNew[4];
               }
               
        }
